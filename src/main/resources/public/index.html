@@ -1,0 +1,64 @@
+<!--
+  ~ Copyright (c) Stichting Koppeltaal 2021.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<html>
+<head>
+    <title>Por Tal homepage</title>
+    <link rel="icon" type="image/svg+xml" href="icons/public-24px.svg">
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"
+          media="screen,projection"/>
+
+</head>
+<body>
+
+<nav class="nav-extended cyan darken-1">
+    <div class="nav-wrapper ">
+        &nbsp; <a href="#" class="brand-logo">Por Taal <i class="large material-icons">public</i></a>
+        <ul id="nav-mobile" class="right">
+            <li><a href="/login" class="loggedout">Login</a></li>
+            <li><a href="/logout" class="loggedin">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="container content-tab main">
+    <div class="row">
+        <div class="col s12">
+            <h1>Welcome to the Por Tal</h1>
+            <p class="loggedin">Hello, <span class="user"></span></p>
+            <p class="loggedin">Welcome to Por Tal.</p>
+        </div>
+    </div>
+</div>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/utils.js"></script>
+<script>
+  var currentUser;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    hide('.loggedout, .loggedin')
+    fetch('/api/user/current').then(jsonPublicResponseHandler).then((user) => {
+      if (user.loggedIn) {
+        show('.loggedin')
+        currentUser = user;
+      } else {
+        show('.loggedout')
+        delete currentUser;
+      }
+      if (currentUser) {
+        document.querySelector('.user').textContent = currentUser.userId;
+      }
+    });
+  }, false);
+</script>
+</body>
+</html>

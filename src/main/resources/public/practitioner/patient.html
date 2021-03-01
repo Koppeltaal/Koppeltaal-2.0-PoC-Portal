@@ -1,0 +1,64 @@
+<!--
+  ~ Copyright (c) Stichting Koppeltaal 2021.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<html>
+<head>
+    <title>Por Tal patients</title>
+    <link rel="icon" type="image/svg+xml" href="../icons/public-24px.svg">
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="../css/materialize.min.css"
+          media="screen,projection"/>
+
+</head>
+<body>
+
+<nav class="nav-extended cyan darken-1">
+    <div class="nav-wrapper ">
+        &nbsp; <a href="#" class="brand-logo">Por Tal <i class="large material-icons">public</i></a>
+        <ul id="nav-mobile" class="right">
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </div>
+    <div class="nav-content loggedin cyan lighten-3">
+        <ul class="tabs tabs-transparent">
+            <li class="tab"><a href="index.html">Main</a></li>
+            <li class="tab"><a href="patients.html" class="active">Patients</a></li>
+        </ul>
+    </div>
+</nav>
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="../js/materialize.min.js"></script>
+<script type="text/javascript" src="../js/utils.js"></script>
+<script>
+  const render = () => {
+
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    fetch('/api/user/current')
+      .then(jsonResponseHandler)
+      .then((user) => {
+        if (user.loggedIn) {
+          currentUser = user;
+          render()
+          // registerFormInputListeners()
+          registerFormSubmitListeners(render)
+          enableMaterializeElements()
+        } else {
+          let res = window.confirm("It seems you are logged out, go to the login page?")
+          if (res) {
+            window.location = '/login';
+          }
+        }
+      });
+  }, false);
+
+</script>
+</body>
+</html>
