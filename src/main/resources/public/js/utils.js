@@ -75,6 +75,16 @@ function updateForm() {
   M.FormSelect.init(document.querySelectorAll('select'));
 }
 
+let clearForm = function (form) {
+  if (typeof form.reset !== 'function') {
+    form = form.form
+  }
+  form.reset()
+  form.querySelectorAll("input[type='hidden']").forEach((el)=>{
+    el.value = '';
+  });
+  updateForm();
+};
 const registerFormSubmitListeners = (callback) => {
   const formElements = document.getElementsByTagName('form');
   for (const i in formElements) {
@@ -87,6 +97,8 @@ const registerFormSubmitListeners = (callback) => {
         headers: {
           'Content-Type': 'application/json'
         }
+      }).then(() => {
+        clearForm(form);
       }).then(callback);
       return false;
     }
