@@ -113,3 +113,11 @@ const jsonPublicResponseHandler = (response) => {
   return response.json();
 }
 
+const createTd = (...args) => {
+  let td = document.createElement('td');
+  args.forEach((arg) => {
+    td.innerText += (td.innerText.length > 0 ? ' ' : '');
+    td.innerText += arg || '';
+  });
+  return td;
+}

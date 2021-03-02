@@ -19,19 +19,8 @@ import java.util.List;
  *
  */
 public interface DtoConverter<D extends BaseDto, R extends DomainResource> {
-	void applyDto(R resource, D dto);
-
-	D convert(R resource);
-	R convert(D dto);
-
 	default void addTelecom(ContactPoint contactPoint, String homeEmail, ContactPoint.ContactPointUse use, ContactPoint.ContactPointSystem system) {
 		setTelecom(homeEmail, use, system, contactPoint);
-	}
-
-	default void setTelecom(String homeEmail, ContactPoint.ContactPointUse use, ContactPoint.ContactPointSystem system, ContactPoint contactPoint) {
-		contactPoint.setUse(use);
-		contactPoint.setSystem(system);
-		contactPoint.setValue(homeEmail);
 	}
 
 	default void addTelecomEmail(ContactPoint contactPoint, String homeEmail, ContactPoint.ContactPointUse use) {
@@ -42,6 +31,12 @@ public interface DtoConverter<D extends BaseDto, R extends DomainResource> {
 		addTelecom(contactPoint, homeEmail, use, ContactPoint.ContactPointSystem.PHONE);
 	}
 
+	void applyDto(R resource, D dto);
+
+	D convert(R resource);
+
+	R convert(D dto);
+
 	default Identifier createIdentifier(String system, String value) {
 		Identifier identifier = new Identifier();
 		Identifier.IdentifierUse use = Identifier.IdentifierUse.OFFICIAL;
@@ -49,6 +44,10 @@ public interface DtoConverter<D extends BaseDto, R extends DomainResource> {
 		identifier.setValue(value);
 		identifier.setUse(use);
 		return identifier;
+	}
+
+	default String getRelativeReference(IIdType idElement) {
+		return idElement.getResourceType()  +"/" + idElement.toUnqualifiedVersionless().getIdPart();
 	}
 
 	default String joinAdressLines(Address address) {
@@ -62,12 +61,21 @@ public interface DtoConverter<D extends BaseDto, R extends DomainResource> {
 		return addressLine;
 	}
 
-	default List<String> unjoinAdressLine(String addressLines) {
-		return Arrays.asList(StringUtils.split(addressLines, "\n"));
+	default void setId(DomainResource resource, BaseDto dto) {
+		String reference = dto.getReference();
+		if (StringUtils.isNotEmpty(reference)) {
+			resource.setId(new IdType(reference));
+		}
 	}
 
-	default String getRelativeReference(IIdType idElement) {
-		return idElement.getResourceType()  +"/" + idElement.toUnqualifiedVersionless().getIdPart();
+	default void setTelecom(String homeEmail, ContactPoint.ContactPointUse use, ContactPoint.ContactPointSystem system, ContactPoint contactPoint) {
+		contactPoint.setUse(use);
+		contactPoint.setSystem(system);
+		contactPoint.setValue(homeEmail);
+	}
+
+	default List<String> unjoinAdressLine(String addressLines) {
+		return Arrays.asList(StringUtils.split(addressLines, "\n"));
 	}
 
 }

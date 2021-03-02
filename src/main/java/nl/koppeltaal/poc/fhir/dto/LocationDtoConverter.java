@@ -23,6 +23,7 @@ import java.util.List;
 public class LocationDtoConverter implements DtoConverter<LocationDto, Location> {
 
 	public void applyDto(Location location, LocationDto locationDto) {
+		setId(location, locationDto);
 		location.getEndpoint().clear();
 		Reference reference = new Reference();
 		reference.setType("Endpoint");

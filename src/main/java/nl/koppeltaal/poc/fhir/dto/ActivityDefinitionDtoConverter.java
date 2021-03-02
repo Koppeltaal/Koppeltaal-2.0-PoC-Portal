@@ -20,6 +20,7 @@ import java.util.List;
 public class ActivityDefinitionDtoConverter implements DtoConverter<ActivityDefinitionDto, ActivityDefinition> {
 
 	public void applyDto(ActivityDefinition activityDefinition, ActivityDefinitionDto activityDefinitionDto) {
+		setId(activityDefinition, activityDefinitionDto);
 		activityDefinition.addIdentifier(createIdentifier(activityDefinitionDto.getIdentifierSystem(), activityDefinitionDto.getIdentifierValue()));
 		activityDefinition.setName(activityDefinitionDto.getName());
 		activityDefinition.setTitle(activityDefinitionDto.getTitle());

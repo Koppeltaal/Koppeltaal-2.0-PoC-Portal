@@ -33,7 +33,7 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "current", method = RequestMethod.GET)
-	public UserDto getUser(HttpSession httpSession, HttpServletRequest request) throws JwkException, IOException {
+	public UserDto getUser(HttpSession httpSession) throws JwkException, IOException {
 		UserDto rv = new UserDto();
 		SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
 		if (tokenStorage.hasToken()) {

@@ -18,12 +18,15 @@ import org.springframework.stereotype.Component;
 public class EndpointDtoConverter implements DtoConverter<EndpointDto, Endpoint> {
 
 	public void applyDto(Endpoint endpoint, EndpointDto endpointDto) {
+		setId(endpoint, endpointDto);
 		endpoint.addIdentifier(createIdentifier("urn:ietf:rfc:3986", endpointDto.getAddress()));
 		// TODO: implement the rest
 		endpoint.setAddress(endpointDto.getAddress());
 		endpoint.setName(endpointDto.getName());
 		endpoint.setStatus(Endpoint.EndpointStatus.fromCode(endpointDto.getStatus()));
 	}
+
+
 
 	public void applyResource(EndpointDto endpointDto, Endpoint endpoint) {
 		endpointDto.setReference(getRelativeReference(endpoint.getIdElement()));

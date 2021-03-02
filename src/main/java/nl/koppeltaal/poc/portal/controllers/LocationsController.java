@@ -8,8 +8,8 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
-import nl.koppeltaal.poc.fhir.dto.PractitionerDtoConverter;
-import nl.koppeltaal.poc.fhir.service.PractitionerFhirClientService;
+import nl.koppeltaal.poc.fhir.dto.LocationDtoConverter;
+import nl.koppeltaal.poc.fhir.service.LocationFhirClientService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
  *
  */
 @RestController()
-@RequestMapping("/api/Practitioner")
-public class PractitionerController extends BaseResourceController {
+@RequestMapping("/api/Location")
+public class LocationsController extends BaseResourceController {
 
 
-	final PractitionerFhirClientService fhirClientService;
-	final PractitionerDtoConverter dtoConverter;
+	final LocationFhirClientService fhirClientService;
+	final LocationDtoConverter dtoConverter;
 
-	public PractitionerController(PractitionerFhirClientService fhirClientService, PractitionerDtoConverter dtoConverter) {
+	public LocationsController(LocationFhirClientService fhirClientService, LocationDtoConverter dtoConverter) {
 		super(fhirClientService, dtoConverter);
 		this.fhirClientService = fhirClientService;
 		this.dtoConverter = dtoConverter;

@@ -9,36 +9,30 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import nl.koppeltaal.poc.fhir.dto.PatientDto;
-import nl.koppeltaal.poc.fhir.dto.PatientDtoConverter;
+import nl.koppeltaal.poc.fhir.dto.ActivityDefinitionDto;
+import nl.koppeltaal.poc.fhir.dto.ActivityDefinitionDtoConverter;
 import nl.koppeltaal.poc.fhir.exception.EnitityNotFoundException;
-import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
-import nl.koppeltaal.poc.utils.UrlUtils;
-import org.hl7.fhir.r4.model.Patient;
+import nl.koppeltaal.poc.fhir.service.ActivityDefinitionFhirClientService;
+import org.hl7.fhir.r4.model.ActivityDefinition;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
  */
 @RestController()
-@RequestMapping("/api/Patient")
-public class PatientsController extends BaseResourceController {
+@RequestMapping(value = "/api/ActivityDefinition")
+public class ActivityDefinitionController extends BaseResourceController<ActivityDefinitionDto, ActivityDefinition> {
 
+	final ActivityDefinitionFhirClientService fhirClientService;
+	final ActivityDefinitionDtoConverter dtoConverter;
 
-	final PatientFhirClientService fhirClientService;
-	final PatientDtoConverter dtoConverter;
-
-	public PatientsController(PatientFhirClientService fhirClientService, PatientDtoConverter dtoConverter) {
+	public ActivityDefinitionController(ActivityDefinitionFhirClientService fhirClientService, ActivityDefinitionDtoConverter dtoConverter) {
 		super(fhirClientService, dtoConverter);
 		this.fhirClientService = fhirClientService;
 		this.dtoConverter = dtoConverter;
 	}
-
 
 }

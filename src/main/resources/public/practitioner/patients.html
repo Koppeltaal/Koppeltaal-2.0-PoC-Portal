@@ -63,16 +63,8 @@
 <script>
   var currentUser;
   const render = () => {
-    const createTd = (...args) => {
-      let td = document.createElement('td');
-      args.forEach((arg) => {
-        td.innerText += (td.innerText.length > 0 ? ' ' : '');
-        td.innerText += arg || '';
-      });
 
-      return td;
-    }
-    fetch('/api/patients?t_=' + new Date().getTime())
+    fetch('/api/Patient?t_=' + new Date().getTime())
       .then(jsonResponseHandler)
       .then((data) => {
         const tdata = document.querySelector('div.patients table.data tbody');
@@ -84,7 +76,7 @@
           tr.append(createTd(patient.nameGiven, patient.nameFamily));
           tr.append(createTd(patient.homeEmail, patient.workEmail));
           let td = document.createElement('td');
-          let viewAction = parseHtml('<a href="patient.html?id=' + patient.id + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">accessibility</i>view</a>')
+          let viewAction = parseHtml('<a href="patient.html?patient=' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">accessibility</i>view</a>')
           td.append(viewAction);
           tr.append(td);
           tdata.append(tr);

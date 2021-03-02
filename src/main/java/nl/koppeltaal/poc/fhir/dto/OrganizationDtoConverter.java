@@ -22,6 +22,7 @@ public class OrganizationDtoConverter implements DtoConverter<OrganizationDto, O
 
 
 	public void applyDto(Organization organization, OrganizationDto organizationDto) {
+		setId(organization, organizationDto);
 		organization.addIdentifier(createIdentifier(organizationDto.getIdentifierSystem(), organizationDto.getIdentifierValue()));
 
 		organization.setActive(organizationDto.isActive());

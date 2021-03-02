@@ -9,12 +9,12 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import nl.koppeltaal.poc.fhir.dto.PatientDto;
-import nl.koppeltaal.poc.fhir.dto.PatientDtoConverter;
+import nl.koppeltaal.poc.fhir.dto.EndpointDto;
+import nl.koppeltaal.poc.fhir.dto.EndpointDtoConverter;
 import nl.koppeltaal.poc.fhir.exception.EnitityNotFoundException;
-import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
+import nl.koppeltaal.poc.fhir.service.EndpointFhirClientService;
 import nl.koppeltaal.poc.utils.UrlUtils;
-import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Endpoint;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,18 +27,17 @@ import java.util.List;
  *
  */
 @RestController()
-@RequestMapping("/api/Patient")
-public class PatientsController extends BaseResourceController {
+@RequestMapping("/api/Endpoint")
+public class EndpointsController extends BaseResourceController<EndpointDto, Endpoint> {
 
 
-	final PatientFhirClientService fhirClientService;
-	final PatientDtoConverter dtoConverter;
+	final EndpointFhirClientService fhirClientService;
+	final EndpointDtoConverter dtoConverter;
 
-	public PatientsController(PatientFhirClientService fhirClientService, PatientDtoConverter dtoConverter) {
+	public EndpointsController(EndpointFhirClientService fhirClientService, EndpointDtoConverter dtoConverter) {
 		super(fhirClientService, dtoConverter);
 		this.fhirClientService = fhirClientService;
 		this.dtoConverter = dtoConverter;
 	}
-
 
 }
