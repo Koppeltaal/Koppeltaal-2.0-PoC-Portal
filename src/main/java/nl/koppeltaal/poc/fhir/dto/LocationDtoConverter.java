@@ -24,15 +24,14 @@ public class LocationDtoConverter implements DtoConverter<LocationDto, Location>
 
 	public void applyDto(Location location, LocationDto locationDto) {
 		setId(location, locationDto);
+		location.getIdentifier().clear();
 		location.getEndpoint().clear();
 		Reference reference = new Reference();
 		reference.setType("Endpoint");
-		Identifier identifer = new Identifier();
-		identifer.setSystem("urn:ietf:rfc:3986");
-		identifer.setUse(Identifier.IdentifierUse.OFFICIAL);
-		identifer.setValue(locationDto.getAddress());
-		reference.setIdentifier(identifer);
+		Identifier identifier = createIdentifier("urn:ietf:rfc:3986", locationDto.getAddress());
+		reference.setIdentifier(identifier);
 		location.addEndpoint(reference);
+		location.addIdentifier(identifier);
 	}
 
 	public void applyResource(LocationDto locationDto, Location location) {
