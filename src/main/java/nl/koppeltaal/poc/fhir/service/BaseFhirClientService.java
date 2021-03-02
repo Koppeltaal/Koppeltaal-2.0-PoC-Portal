@@ -50,15 +50,15 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 	}
 
 	public void deleteResourceByReference(TokenStorage sessionTokenStorage, String id) throws IOException, JwkException {
-		R resource = getResourceByReference(sessionTokenStorage, id);
+		R resource = getResourceById(sessionTokenStorage, id);
 		if (resource != null) {
 			IBaseOperationOutcome outcome = getFhirClient(sessionTokenStorage).delete().resource(resource).execute();
 			System.out.println(outcome);
 		}
 	}
 
-	public R getResourceByReference(TokenStorage tokenStorage, String reference) throws IOException, JwkException {
-		return (R) getFhirClient(tokenStorage).read().resource(getResourceName()).withId(reference).execute();
+	public R getResourceById(TokenStorage tokenStorage, String id) throws IOException, JwkException {
+		return (R) getFhirClient(tokenStorage).read().resource(getResourceName()).withId(id).execute();
 	}
 
 	public R getResourceByIdentifier(TokenStorage tokenStorage, String identifierValue) throws IOException, JwkException {
@@ -80,7 +80,7 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 		String id = getId(resource);
 		R res = null;
 		if (StringUtils.isNotEmpty(id)) {
-			res = getResourceByReference(tokenStorage, id);
+			res = getResourceById(tokenStorage, id);
 		} else if (StringUtils.isNotEmpty(identifier)) {
 			res = getResourceByIdentifier(tokenStorage, identifier, getDefaultSystem());
 		}
@@ -88,8 +88,8 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 
 		if (res != null) {
 			dtoConverter.applyDto(res, dtoConverter.convert(resource));
-			getFhirClient(tokenStorage).update().resource(res).execute();
-			return res;
+			MethodOutcome execute = getFhirClient(tokenStorage).update().resource(res).execute();
+			return (R) execute.getResource();
 		}
 
 		updateMetaElement(source, resource);
@@ -111,7 +111,11 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 	}
 
 	private String getId(R resource) {
-		return resource.getIdElement().getIdPart();
+		IdType idElement = resource.getIdElement();
+		if (!idElement.isEmpty()) {
+			return idElement.getIdPart();
+		}
+		return null;
 	}
 
 	protected abstract String getIdentifier(String system, R resource);
