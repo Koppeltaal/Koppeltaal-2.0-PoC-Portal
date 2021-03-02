@@ -30,7 +30,9 @@ public class ActivityDefinitionDtoConverter implements DtoConverter<ActivityDefi
 
 		activityDefinition.setKind(ActivityDefinition.ActivityDefinitionKind.fromCode(activityDefinitionDto.getKind()));
 
-		activityDefinition.setLocation(new Reference(activityDefinitionDto.getLocation()));
+		Reference value = new Reference(activityDefinitionDto.getLocation());
+		value.setType("ActivityDefinition");
+		activityDefinition.setLocation(value);
 	}
 
 

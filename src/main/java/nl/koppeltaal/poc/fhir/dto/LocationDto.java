@@ -4,13 +4,13 @@ package nl.koppeltaal.poc.fhir.dto;
  *
  */
 public class LocationDto extends BaseDto {
-	String address;
+	String endpoint;
 
-	public String getAddress() {
-		return address;
+	public String getEndpoint() {
+		return endpoint;
 	}
 
-	public void setAddress(String address) {
-		this.address = address;
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
 	}
 }
