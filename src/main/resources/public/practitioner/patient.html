@@ -127,7 +127,7 @@
                   const tr = document.createElement('tr');
                   tr.append(createTd(activitydefinition.name));
                   let td = document.createElement('td');
-                  let startAction = parseHtml('<a href="activitydefinition.html?activityDefinition=' + activitydefinition.reference + '&patient=' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
+                  let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + activitydefinition.reference + '/' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
                   td.append(startAction);
                   td.append(' ');
                   let viewAction = parseHtml('<a href="activitydefinition.html?activityDefinition=' + activitydefinition.reference + '&patient=' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">assignment</i>view</a>')

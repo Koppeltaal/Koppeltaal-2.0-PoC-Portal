@@ -3,6 +3,7 @@ package nl.koppeltaal.poc.kt20.services;
 import com.auth0.jwk.JwkException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.koppeltaal.poc.fhir.service.*;
+import nl.koppeltaal.poc.fhir.utils.ResourceUtils;
 import nl.koppeltaal.poc.generic.TokenStorage;
 import nl.koppeltaal.poc.kt20.KeyUtils;
 import nl.koppeltaal.poc.kt20.configuration.Kt20ClientConfiguration;
@@ -54,6 +55,12 @@ public class Kt20LaunchService {
 	@Autowired
 	TaskFhirClientService taskFhirClientService;
 
+	@Autowired
+	EndpointFhirClientService endpointFhirClientService;
+
+	@Autowired
+	LocationFhirClientService locationFhirClientService;
+
 	public LaunchData launchPatient(TokenStorage tokenStorage, Patient patient, String treatmentId) throws GeneralSecurityException, IOException, JwkException {
 		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(tokenStorage, treatmentId);
 		Assert.notNull(fhirDefinition, String.format("ActivityDefinition with id %s not found.", treatmentId));
@@ -61,11 +68,11 @@ public class Kt20LaunchService {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getOrCreateTask(tokenStorage, patient, null, fhirDefinition);
 		Assert.notNull(fhirTask, "FHIR Task not created");
 
-		Task task = buildTask(fhirTask);
+		Task task = buildTask(fhirTask, new Reference(ResourceUtils.getReference(patient)));
 
 
-		String launchToken = getLaunchToken(task, fhirDefinition);
-		return new LaunchData(fhirDefinition.getUrl(), launchToken, isRedirect(fhirDefinition));
+		String launchToken = getLaunchToken(tokenStorage, task, fhirDefinition);
+		return new LaunchData(getUrlForActivityDefinition(tokenStorage, fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
 	public LaunchData launchPractitioner(TokenStorage tokenStorage, Practitioner practitioner, Patient patient, String treatmentId) throws GeneralSecurityException, IOException, JwkException {
@@ -73,19 +80,30 @@ public class Kt20LaunchService {
 		Assert.notNull(fhirDefinition, String.format("ActivityDefinition with id %s not found.", treatmentId));
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getOrCreateTask(tokenStorage, patient, practitioner, fhirDefinition);
 		Assert.notNull(fhirTask, "FHIR Task not created");
-		Task task = buildTask(fhirTask);
-		String launchToken = getLaunchToken(task, fhirDefinition);
-		return new LaunchData(fhirDefinition.getUrl(), launchToken, isRedirect(fhirDefinition));
+		Task task = buildTask(fhirTask,  new Reference(ResourceUtils.getReference(practitioner)));
+		String launchToken = getLaunchToken(tokenStorage, task, fhirDefinition);
+		return new LaunchData(getUrlForActivityDefinition(tokenStorage, fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
 	public LaunchData launchRelatedPerson(TokenStorage tokenStorage, RelatedPerson fhirRelatedPerson, Patient fhirPatient, String treatmentId) throws GeneralSecurityException, IOException, JwkException {
 		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(tokenStorage, treatmentId);
 		Assert.notNull(fhirDefinition, String.format("ActivityDefinition with id %s not found.", treatmentId));
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getOrCreateTask(tokenStorage, fhirPatient, null, fhirDefinition);
-		Task task = buildTask(fhirTask);
+		Task task = buildTask(fhirTask, new Reference(ResourceUtils.getReference(fhirRelatedPerson)));
 		Assert.notNull(fhirTask, "FHIR Task not created");
-		String launchToken = getLaunchToken(task, fhirDefinition);
-		return new LaunchData(fhirDefinition.getUrl(), launchToken, isRedirect(fhirDefinition));
+		String launchToken = getLaunchToken(tokenStorage, task, fhirDefinition);
+		return new LaunchData(getUrlForActivityDefinition(tokenStorage, fhirDefinition), launchToken, isRedirect(fhirDefinition));
+	}
+
+	private String getUrlForActivityDefinition(TokenStorage tokenStorage, ActivityDefinition fhirDefinition) throws IOException, JwkException {
+		Reference locationReference = fhirDefinition.getLocation();
+		Location location = locationFhirClientService.getResourceByReference(tokenStorage, locationReference);
+		for (Reference endpointReference : location.getEndpoint()) {
+			Endpoint ep = endpointFhirClientService.getResourceByReference(tokenStorage, endpointReference);
+			if (ep != null)
+				return ep.getAddress();
+		}
+		return null;
 	}
 
 	private Task.Identifier buildIdentifier(String id) {
@@ -115,14 +133,14 @@ public class Kt20LaunchService {
 		return jwe.getCompactSerialization();
 	}
 
-	private Task buildTask(org.hl7.fhir.r4.model.Task fhirTask) {
+	private Task buildTask(org.hl7.fhir.r4.model.Task fhirTask, Reference forUser) {
 		Task task = new Task();
 		task.setResourceType("Task");
 		task.setId(fhirTask.getIdElement().getIdPart());
 		Assert.notNull(fhirTask.getInstantiatesCanonical(), "DefinitionReference in FHIR Task is null");
 		task.getDefinitionReference().setReference(fhirTask.getInstantiatesCanonical());
 		task.setOwner(buildUser(fhirTask.getOwner()));
-		task.setForUser(buildUser(fhirTask.getFor()));
+		task.setForUser(buildUser(forUser));
 		task.setRequester(buildUser(fhirTask.getRequester()));
 		task.setIdentifier(buildIdentifier(fhirTask.getIdentifier()));
 		return task;
@@ -136,12 +154,12 @@ public class Kt20LaunchService {
 		return user;
 	}
 
-	protected String getLaunchToken(Task task, ActivityDefinition definition) throws GeneralSecurityException {
+	protected String getLaunchToken(TokenStorage tokenStorage, Task task, ActivityDefinition definition) throws GeneralSecurityException {
 		try {
 			JwtClaims claims = new JwtClaims();
 			claims.setClaim("task", toMap(task));
 			claims.setIssuedAt(NumericDate.now());
-			claims.setAudience(definition.getUrl());
+			claims.setAudience(getUrlForActivityDefinition(tokenStorage, definition));
 			claims.setIssuer(kt20ServerConfiguration.getIssuer());
 			claims.setExpirationTime(NumericDate.fromMilliseconds(System.currentTimeMillis() + 15 * 60 * 1000));
 			claims.setJwtId(UUID.randomUUID().toString());
@@ -170,7 +188,7 @@ public class Kt20LaunchService {
 			final String payload = jws.getCompactSerialization();
 			final boolean useJwe = isUseJwe(definition);
 			return (useJwe ? buildJweWrapping(payload) : payload);
-		} catch (JoseException e) {
+		} catch (JoseException | IOException | JwkException e) {
 			throw new GeneralSecurityException(e);
 		}
 

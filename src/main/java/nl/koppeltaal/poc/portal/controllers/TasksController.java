@@ -40,8 +40,7 @@ public class TasksController extends BaseResourceController<TaskDto, Task> {
 	@RequestMapping(value = "Patient/{reference}", method = RequestMethod.GET)
 	public List<TaskDto> getForActivityDefinition(HttpSession httpSession, @PathVariable String reference) throws IOException, JwkException {
 		List<TaskDto> rv = new ArrayList<>();
-		fhirClientService.getResourcesByOwner(new SessionTokenStorage(httpSession), reference);
-		List<Task> list = fhirClientService.getResourcesByOwner(new SessionTokenStorage(httpSession), reference);
+		List<Task> list = fhirClientService.getResourcesByOwner(new SessionTokenStorage(httpSession), "Patient/" + reference);
 		for (Task activitydefinition : list) {
 			rv.add(dtoConverter.convert(activitydefinition));
 		}

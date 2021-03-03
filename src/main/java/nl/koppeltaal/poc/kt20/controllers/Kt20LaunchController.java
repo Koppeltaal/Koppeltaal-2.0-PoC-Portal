@@ -37,7 +37,7 @@ public class Kt20LaunchController {
 	}
 
 
-	@RequestMapping(value = {"launch/{treatmentId}/{patientId}", "launch/{treatmentId}"}, produces = MediaType.TEXT_HTML_VALUE)
+	@RequestMapping(value = {"launch/ActivityDefinition/{treatmentId}/Patient/{patientId}", "launch/{treatmentId}"}, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String launch(HttpSession session, @PathVariable("treatmentId") String treatmentId, @PathVariable("patientId") String patientId) throws Exception {
 		SessionTokenStorage tokenStorage = new SessionTokenStorage(session);
@@ -54,7 +54,7 @@ public class Kt20LaunchController {
 		}
 
 		if (patient == null && StringUtils.isNotEmpty(patientId)) {
-			patient = patientFhirClientService.getResourceByIdentifier(tokenStorage, patientId);
+			patient = patientFhirClientService.getResourceByReference(tokenStorage, patientId);
 		}
 		LaunchData launchData = new LaunchData("index.html", "", true);
 		if (practitioner != null && patient != null) {

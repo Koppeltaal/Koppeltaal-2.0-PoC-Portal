@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "kt20.client")
 public class Kt20ClientConfiguration {
 	String publicKey;
-	boolean useJwe = true;
+	boolean useJwe = false;
 
 	public String getPublicKey() {
 		return publicKey;
