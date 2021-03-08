@@ -1,6 +1,5 @@
 package nl.koppeltaal.poc.kt20.controllers;
 
-import nl.koppeltaal.poc.fhir.dto.PatientDto;
 import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
 import nl.koppeltaal.poc.kt20.services.Kt20LaunchService;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
@@ -9,12 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.RelatedPerson;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
@@ -36,10 +32,36 @@ public class Kt20LaunchController {
 		this.patientFhirClientService = patientFhirClientService;
 	}
 
+	@RequestMapping(value = {"launch/Task/{taskId}"}, produces = MediaType.TEXT_HTML_VALUE)
+	@ResponseBody
+	public String launchTask(HttpSession session, @PathVariable("taskId") String taskId, boolean isNew) throws Exception {
+		SessionTokenStorage tokenStorage = new SessionTokenStorage(session);
+		Object usr = session.getAttribute("user");
+		RelatedPerson relatedPerson = null;
+		Practitioner practitioner = null;
+		Patient patient = null;
+		if (usr instanceof Practitioner) {
+			 practitioner = (Practitioner) usr;
+		} else if (usr instanceof Patient) {
+			 patient = (Patient) usr;
+		} else  if (usr instanceof RelatedPerson) {
+			relatedPerson = (RelatedPerson) usr;
+		}
+		LaunchData launchData = new LaunchData("index.html", "", true);
+		if (practitioner != null) {
+			launchData = kt20LaunchService.launchTaskPractitioner(tokenStorage, practitioner, taskId);
+		} else if (relatedPerson != null) {
+			launchData = kt20LaunchService.launchTaskRelatedPerson(tokenStorage, relatedPerson, taskId);
+		} else if (patient != null) {
+			launchData = kt20LaunchService.launchTaskPatient(tokenStorage, patient, taskId);
+		}
+		return renderLaunchData(launchData);
+	}
+
 
 	@RequestMapping(value = {"launch/ActivityDefinition/{treatmentId}/Patient/{patientId}", "launch/{treatmentId}"}, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
-	public String launch(HttpSession session, @PathVariable("treatmentId") String treatmentId, @PathVariable("patientId") String patientId) throws Exception {
+	public String launch(HttpSession session, @PathVariable("treatmentId") String treatmentId, @PathVariable("patientId") String patientId, @RequestParam(value = "new", required = false) boolean isNew) throws Exception {
 		SessionTokenStorage tokenStorage = new SessionTokenStorage(session);
 		Object usr = session.getAttribute("user");
 		RelatedPerson relatedPerson = null;
@@ -58,12 +80,16 @@ public class Kt20LaunchController {
 		}
 		LaunchData launchData = new LaunchData("index.html", "", true);
 		if (practitioner != null && patient != null) {
-			launchData = kt20LaunchService.launchPractitioner(tokenStorage, practitioner, patient, treatmentId);
+			launchData = kt20LaunchService.launchPractitioner(tokenStorage, practitioner, patient, treatmentId, isNew);
 		} else if (relatedPerson != null && patient != null) {
-			launchData = kt20LaunchService.launchRelatedPerson(tokenStorage, relatedPerson, patient, treatmentId);
+			launchData = kt20LaunchService.launchRelatedPerson(tokenStorage, relatedPerson, patient, treatmentId, isNew);
 		} else if (patient != null) {
-			launchData = kt20LaunchService.launchPatient(tokenStorage, patient,  treatmentId);
+			launchData = kt20LaunchService.launchPatient(tokenStorage, patient,  treatmentId, isNew);
 		}
+		return renderLaunchData(launchData);
+	}
+
+	private String renderLaunchData(LaunchData launchData) throws UnsupportedEncodingException {
 		String method = (launchData.isRedirect() ? "get" : "post");
 		return "<html>\n" +
 				"<head>\n" +

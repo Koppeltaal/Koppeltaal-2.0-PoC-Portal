@@ -19,17 +19,17 @@
 </head>
 <body>
 
-<nav class="nav-extended cyan darken-1">
+<nav class="nav-extended teal darken-1">
     <div class="nav-wrapper ">
         &nbsp; <a href="#" class="brand-logo">Por Tal <i class="large material-icons">public</i></a>
         <ul id="nav-mobile" class="right">
             <li><a href="/logout">Logout</a></li>
         </ul>
     </div>
-    <div class="nav-content loggedin cyan lighten-3">
+    <div class="nav-content loggedin teal lighten-3">
         <ul class="tabs tabs-transparent">
             <li class="tab"><a href="index.html">Main</a></li>
-            <li class="tab"><a href="patients.html" class="active">Patients</a></li>
+            <li class="tab"><a href="tasks.html" class="active">Tasks</a></li>
         </ul>
     </div>
 </nav>
@@ -80,11 +80,11 @@
 <script>
   const render = () => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('patient') && urlParams.has('activityDefinition')) {
-      const patient = urlParams.get('patient');
+    if (urlParams.has('activityDefinition')) {
+      const patient = currentUser.patient;
       const activityDefinition = urlParams.get('activityDefinition');
 
-      document.querySelector('#startLink').href='/kt2/launch/' + activityDefinition + '/' + patient;
+      document.querySelector('#startLink').href='/kt2/launch/' + activityDefinition + '/' + patient.reference;
 
       fetch('/api/' + activityDefinition)
         .then(jsonResponseHandler)
@@ -105,7 +105,7 @@
               }
             }
           }
-          fetch('/api/Task/' + patient)
+          fetch('/api/Task/' + patient.reference)
             .then(jsonResponseHandler)
             .then((data) => {
               for (var i in data) {

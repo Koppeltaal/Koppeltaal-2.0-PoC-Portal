@@ -25,6 +25,7 @@ public class TaskDtoConverter implements DtoConverter<TaskDto, Task> {
 		task.setRequester(new Reference(taskDto.getPractitioner()));
 		task.setOwner(new Reference(taskDto.getPatient()));
 		task.setInstantiatesCanonical(taskDto.getActivityDefinition());
+		task.setStatus(Task.TaskStatus.fromCode(taskDto.getStatus()));
 	}
 
 	public void applyResource(TaskDto taskDto, Task task) {
@@ -32,6 +33,8 @@ public class TaskDtoConverter implements DtoConverter<TaskDto, Task> {
 		taskDto.setPatient(task.getOwner().getReference());
 		taskDto.setPractitioner(task.getRequester().getReference());
 		taskDto.setActivityDefinition(task.getInstantiatesCanonical());
+		if (task.getStatus() != null)
+			taskDto.setStatus(task.getStatus().toCode());
 	}
 
 	public TaskDto convert(Task task) {

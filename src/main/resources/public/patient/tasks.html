@@ -19,53 +19,21 @@
 </head>
 <body>
 
-<nav class="nav-extended cyan darken-1">
+<nav class="nav-extended teal darken-1">
     <div class="nav-wrapper ">
         &nbsp; <a href="#" class="brand-logo">Por Tal <i class="large material-icons">public</i></a>
         <ul id="nav-mobile" class="right">
             <li><a href="/logout">Logout</a></li>
         </ul>
     </div>
-    <div class="nav-content loggedin cyan lighten-3">
+    <div class="nav-content loggedin teal lighten-3">
         <ul class="tabs tabs-transparent">
             <li class="tab"><a href="index.html">Main</a></li>
-            <li class="tab"><a href="patients.html" class="active">Patients</a></li>
+            <li class="tab"><a href="tasks.html" class="active">Tasks</a></li>
         </ul>
     </div>
 </nav>
 <div class="container">
-    <div class="row">
-        <div class="col s12 m12">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">
-                        <span class="patient_nameGiven"></span>
-                        <span class="patient_nameFamily"></span>
-                    </span>
-                    <table>
-                        <tbody>
-                        <tr>
-                            <td>Gender</td>
-                            <td><span class="patient_gender"></span></td>
-                        </tr>
-                        <tr>
-                            <td>Date of birth</td>
-                            <td><span class="patient_birthDate"></span></td>
-                        </tr>
-                        <tr>
-                            <td>Work email</td>
-                            <td><span class="patient_workEmail"></span></td>
-                        </tr>
-                        <tr>
-                            <td>Home email</td>
-                            <td><span class="patient_homeEmail"></span></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="content-tab activitydefinitions">
         <div class="row">
             <div class="col s12">
@@ -101,6 +69,7 @@
                     <tr>
                         <th>Id</th>
                         <th>Activity Definition</th>
+                        <th>Practitioner</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -119,7 +88,7 @@
 <script type="text/javascript" src="../js/utils.js"></script>
 <script>
 
-  const renderActivityDefinitions = (patient) => {
+  const renderActivityDefinitions = (patient, practitioners) => {
     fetch('/api/ActivityDefinition/' + patient.reference)
       .then(jsonResponseHandler)
       .then((data) => {
@@ -130,15 +99,15 @@
           for (let i in data) {
             const activitydefinition = data[i];
             const tr = document.createElement('tr');
-            tr.append(createTd(activitydefinition.name));
+            tr.append(createTd(activitydefinition.title));
             let td = document.createElement('td');
             let addAction = parseHtml('<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>add</a>')
             addAction.onclick = (event) => {
               fetch('/api/Task/' + activitydefinition.reference + "/" + patient.reference, {method: 'PUT'})
-              .then(jsonResponseHandler)
-              .then((data) => {
-                renderTasks(patient, activitydefinitions)
-              });
+                .then(jsonResponseHandler)
+                .then((data) => {
+                  renderTasks(patient, activitydefinitions, practitioners)
+                });
               return false;
             }
             td.append(addAction);
@@ -156,12 +125,25 @@
             activitydefinitions[activitydefinition.reference] = activitydefinition
           }
         }
-        renderTasks(patient, activitydefinitions);
+        renderTasks(patient, activitydefinitions, practitioners);
       });
 
   }
 
-  const renderTasks = (patient, activitydefinitions) => {
+  const renderPractitioners = (patient) => {
+    fetch('/api/Practitioner/')
+      .then(jsonResponseHandler)
+      .then((data) => {
+        const practitioners = {}
+        for (var i in data) {
+          let practitioner = data[i];
+          practitioners[practitioner.reference] = practitioner;
+        }
+        renderActivityDefinitions(patient, practitioners);
+      });
+  }
+
+  const renderTasks = (patient, activitydefinitions, practitioners) => {
     fetch('/api/Task/' + patient.reference)
       .then(jsonResponseHandler)
       .then((data) => {
@@ -172,7 +154,8 @@
             const task = data[i];
             const tr = document.createElement('tr');
             tr.append(createTd(task.reference));
-            tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].name : ''));
+            tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
+            tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
             tr.append(createTd(task.status));
             let td = document.createElement('td');
             let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
@@ -186,10 +169,10 @@
   }
 
   const render = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('patient')) {
-      const patient = urlParams.get('patient');
-      fetch('/api/' + patient)
+    const patient = currentUser.patient;
+    if (patient) {
+
+      fetch('/api/' + patient.reference)
         .then(jsonResponseHandler)
         .then((patient) => {
           for (let i in patient) {
@@ -206,10 +189,12 @@
               }
             }
           }
-          renderActivityDefinitions(patient);
+          renderPractitioners(patient);
+
 
         });
     }
+
   }
   document.addEventListener('DOMContentLoaded', function () {
     fetch('/api/user/current')

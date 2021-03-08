@@ -133,3 +133,13 @@ const createTd = (...args) => {
   });
   return td;
 }
+
+const formatPlainText = (text) => {
+  var rv = '<p>'
+  paras = text.split('\n')
+  for (var i in paras) {
+    rv += paras[i] || '&nbsp;';
+    rv += '</p><p>'
+  }
+  return rv + '</p>'
+}

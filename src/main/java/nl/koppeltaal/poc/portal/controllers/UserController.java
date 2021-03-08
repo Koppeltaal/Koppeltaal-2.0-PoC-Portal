@@ -9,8 +9,11 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
+import nl.koppeltaal.poc.fhir.dto.PatientDto;
+import nl.koppeltaal.poc.fhir.dto.PatientDtoConverter;
 import nl.koppeltaal.poc.fhir.service.Oauth2ClientService;
 import nl.koppeltaal.poc.portal.dto.UserDto;
+import org.hl7.fhir.r4.model.Patient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,8 +31,11 @@ public class UserController {
 
 	final Oauth2ClientService oauth2ClientService;
 
-	public UserController(Oauth2ClientService oauth2ClientService) {
+	final PatientDtoConverter patientDtoConverter;
+
+	public UserController(Oauth2ClientService oauth2ClientService, PatientDtoConverter patientDtoConverter) {
 		this.oauth2ClientService = oauth2ClientService;
+		this.patientDtoConverter = patientDtoConverter;
 	}
 
 	@RequestMapping(value = "current", method = RequestMethod.GET)
@@ -41,6 +47,11 @@ public class UserController {
 			rv.setLoggedIn(true);
 		} else {
 			rv.setLoggedIn(false);
+		}
+
+		Object user = httpSession.getAttribute("user");
+		if (user instanceof Patient) {
+			rv.setPatient(patientDtoConverter.convert((Patient) user));
 		}
 		return rv;
 	}

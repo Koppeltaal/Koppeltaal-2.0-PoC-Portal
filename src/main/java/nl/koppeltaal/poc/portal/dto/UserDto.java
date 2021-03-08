@@ -8,10 +8,14 @@
 
 package nl.koppeltaal.poc.portal.dto;
 
+import nl.koppeltaal.poc.fhir.dto.PatientDto;
+import org.hl7.fhir.r4.model.Patient;
+
 /**
  *
  */
 public class UserDto {
+	PatientDto patient;
 	private String userId;
 	private boolean loggedIn;
 
@@ -21,6 +25,14 @@ public class UserDto {
 
 	public void setLoggedIn(boolean loggedIn) {
 		this.loggedIn = loggedIn;
+	}
+
+	public PatientDto getPatient() {
+		return patient;
+	}
+
+	public void setPatient(PatientDto patient) {
+		this.patient = patient;
 	}
 
 	public String getUserId() {

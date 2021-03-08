@@ -11,7 +11,6 @@ package nl.koppeltaal.poc.fhir.service;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.gclient.ICriterion;
 import ca.uhn.fhir.rest.gclient.ReferenceClientParam;
-import ca.uhn.fhir.rest.gclient.TokenClientParam;
 import com.auth0.jwk.JwkException;
 import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
 import nl.koppeltaal.poc.fhir.dto.TaskDto;
@@ -19,13 +18,12 @@ import nl.koppeltaal.poc.fhir.dto.TaskDtoConverter;
 import nl.koppeltaal.poc.fhir.utils.ResourceUtils;
 import nl.koppeltaal.poc.generic.TokenStorage;
 import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.instance.model.api.IIdType;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -37,36 +35,72 @@ public class TaskFhirClientService extends BaseFhirClientService<TaskDto, Task> 
 		super(fhirClientConfiguration, oauth2ClientService, fhirContext, taskDtoConverter);
 	}
 
-	public Task getOrCreateTask(TokenStorage tokenStorage, Patient patient, Practitioner practitioner, ActivityDefinition activityDefinition) throws IOException, JwkException {
-		List<Task> tasks = getTasksForOwnerAndDefinition(tokenStorage, patient, activityDefinition);
+	public Task getOrCreateTask(TokenStorage tokenStorage, Patient patient, Practitioner practitioner, ActivityDefinition activityDefinition, boolean forceNew) throws IOException, JwkException {
+		List<Task> tasks =  Collections.emptyList();
+		if (!forceNew) {
+			tasks = getTasksForOwnerAndDefinition(tokenStorage, patient, activityDefinition);
+		}
 		Task task;
 		if (tasks.isEmpty()) {
 			task = new Task();
-			task.setOwner(new Reference(patient));
+			task.setOwner(buildReference(patient));
 			if (practitioner != null) {
-				task.setRequester(new Reference(practitioner));
+				task.setRequester(buildReference(practitioner));
 			}
 			task.setStatus(Task.TaskStatus.READY);
 			task.setIntent(Task.TaskIntent.ORDER);
-			task.getRestriction().addRecipient(new Reference(practitioner));
+			task.getRestriction().addRecipient(buildReference(practitioner));
 			task.getExecutionPeriod().setStart(new Date());
 			task.setInstantiatesCanonical(ResourceUtils.getReference(activityDefinition));
-			task = storeResource(tokenStorage, "system",task);
+			task = storeResource(tokenStorage, "system", task);
 		} else {
 			task = tasks.get(0);
+		}
+		if (task.getStatus() == null) {
+			task.setStatus(Task.TaskStatus.REQUESTED);
 		}
 		return task;
 	}
 
+	private Reference buildReference(Resource resource) {
+		if (resource == null) return null;
+		Reference reference = new Reference(getRelativeReference(resource.getIdElement()));
+		return reference;
+	}
+
+
+	private Reference buildReference(Patient patient) {
+		if (patient == null) return null;
+		Reference reference = new Reference(getRelativeReference(patient.getIdElement()));
+//		for (Identifier identifier : patient.getIdentifier()) {
+//			reference.setIdentifier(identifier);
+//			break;
+//		}
+		return reference;
+	}
+
+
+	private String getRelativeReference(IIdType idElement) {
+		return idElement.toUnqualifiedVersionless().getValue();
+	}
+
 	public List<Task> getResourcesByOwner(TokenStorage tokenStorage, String ownerReference) throws IOException, JwkException {
 		List<Task> rv = new ArrayList<>();
-		ICriterion<ReferenceClientParam> criterion = Task.OWNER.hasId(ownerReference);
+		ICriterion<ReferenceClientParam> criterion = Task.OWNER.hasId(getIdFromReference(ownerReference));
 		Bundle bundle = getFhirClient(tokenStorage).search().forResource(getResourceName()).where(criterion).returnBundle(Bundle.class).execute();
 		for (Bundle.BundleEntryComponent component : bundle.getEntry()) {
 			Task resource = (Task) component.getResource();
 			rv.add(resource);
 		}
 		return rv;
+	}
+
+	private IdType getIdFromReference(String ownerReference) {
+		if (StringUtils.contains(ownerReference, "/")) {
+			// Strip of the Patient/ from Patient/1
+			ownerReference = StringUtils.substringAfterLast(ownerReference, "/");
+		}
+		return new IdType(ownerReference);
 	}
 
 	protected String getDefaultSystem() {
@@ -91,7 +125,7 @@ public class TaskFhirClientService extends BaseFhirClientService<TaskDto, Task> 
 		List<Task> rv = new ArrayList<>();
 		List<Task> resourcesByOwner = getResourcesByOwner(tokenStorage, ResourceUtils.getReference(fhirPatient));
 		for (Task task : resourcesByOwner) {
-			if (StringUtils.equals(task.getInstantiatesCanonical(), fhirDefinition.getId())) {
+			if (StringUtils.equals(task.getInstantiatesCanonical(), ResourceUtils.getReference(fhirDefinition))) {
 				rv.add(task);
 			}
 		}
