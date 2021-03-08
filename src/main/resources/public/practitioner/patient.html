@@ -132,7 +132,7 @@
             const tr = document.createElement('tr');
             tr.append(createTd(activitydefinition.name));
             let td = document.createElement('td');
-            let addAction = parseHtml('<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>add</a>')
+            let addAction = parseHtml('<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">add_box</i>add</a>')
             addAction.onclick = (event) => {
               fetch('/api/Task/' + activitydefinition.reference + "/" + patient.reference, {method: 'PUT'})
               .then(jsonResponseHandler)
