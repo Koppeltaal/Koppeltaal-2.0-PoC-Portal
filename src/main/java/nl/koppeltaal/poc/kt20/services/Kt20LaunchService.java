@@ -209,7 +209,7 @@ public class Kt20LaunchService {
 			// Set the Key ID (kid) header because it's just the polite thing to do.
 			// We only have one key in this example but a using a Key ID helps
 			// facilitate a smooth key rollover process
-			jws.setKeyIdHeaderValue(jwk.getKeyId());
+			jws.setKeyIdHeaderValue(KeyUtils.getFingerPrint(rsaKeyPair.getPublic()));
 
 			// Set the signature algorithm on the JWT/JWS that will integrity protect the claims
 			jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA512);
