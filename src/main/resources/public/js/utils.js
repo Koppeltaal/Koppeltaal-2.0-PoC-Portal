@@ -143,3 +143,7 @@ const formatPlainText = (text) => {
   }
   return rv + '</p>'
 }
+
+const isTaskActive = function (task) {
+  return task.status !== 'completed' && task.status !== 'failed' && task.status !== 'cancelled';
+};

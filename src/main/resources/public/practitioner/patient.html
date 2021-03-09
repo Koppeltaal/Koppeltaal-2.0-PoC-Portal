@@ -170,15 +170,17 @@
           tdata.innerHTML = '';
           for (let i in data) {
             const task = data[i];
-            const tr = document.createElement('tr');
-            tr.append(createTd(task.reference));
-            tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].name : ''));
-            tr.append(createTd(task.status));
-            let td = document.createElement('td');
-            let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
-            td.append(startAction);
-            tr.append(td);
-            tdata.append(tr);
+            if (isTaskActive(task)) {
+              const tr = document.createElement('tr');
+              tr.append(createTd(task.reference));
+              tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].name : ''));
+              tr.append(createTd(task.status));
+              let td = document.createElement('td');
+              let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
+              td.append(startAction);
+              tr.append(td);
+              tdata.append(tr);
+            }
           }
         }
       });
