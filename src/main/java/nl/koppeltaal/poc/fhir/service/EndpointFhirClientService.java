@@ -13,8 +13,8 @@ import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
 import nl.koppeltaal.poc.fhir.dto.EndpointDto;
 import nl.koppeltaal.poc.fhir.dto.EndpointDtoConverter;
 import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.r4.model.Endpoint;
 import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Endpoint;
 import org.springframework.stereotype.Service;
 
 /**

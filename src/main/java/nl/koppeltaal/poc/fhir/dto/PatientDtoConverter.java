@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class PatientDtoConverter implements DtoConverter<PatientDto, Patient> {
 
 	public void applyDto(Patient patient, PatientDto patientDto) {
 		setId(patient, patientDto);
-		patient.addIdentifier(createIdentifier(patientDto.getIdentifierSystem(), patientDto.getIdentifierValue()));
+		patient.setIdentifier(Collections.singletonList(createIdentifier(patientDto.getIdentifierSystem(), patientDto.getIdentifierValue())));
 
 		patient.setActive(patientDto.isActive());
 

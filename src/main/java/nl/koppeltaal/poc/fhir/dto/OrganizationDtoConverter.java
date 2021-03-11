@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,7 +24,7 @@ public class OrganizationDtoConverter implements DtoConverter<OrganizationDto, O
 
 	public void applyDto(Organization organization, OrganizationDto organizationDto) {
 		setId(organization, organizationDto);
-		organization.addIdentifier(createIdentifier(organizationDto.getIdentifierSystem(), organizationDto.getIdentifierValue()));
+		organization.setIdentifier(Collections.singletonList(createIdentifier(organizationDto.getIdentifierSystem(), organizationDto.getIdentifierValue())));
 
 		organization.setActive(organizationDto.isActive());
 
