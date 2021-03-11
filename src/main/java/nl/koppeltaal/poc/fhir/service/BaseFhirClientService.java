@@ -145,12 +145,13 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 					return identifier.getValue();
 				}
 			}
+			return null;
 		} catch (NoSuchMethodException | IllegalAccessException e) {
 			// Die silently
+			return null;
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
-		return null;
 	}
 
 	protected R getResourceByIdentifier(TokenStorage tokenStorage, String identifierValue, String identifierSystem) throws JwkException, IOException {

@@ -91,20 +91,6 @@ public class KeyUtils {
 		return jsonWebKey.calculateBase64urlEncodedThumbprint("MD5");
 	}
 
-	private static String toHexString(byte[] digest) {
-		final StringBuilder rv = new StringBuilder();
-		for (int i = 0; i < digest.length; i++) {
-			if (i != 0) {
-				rv.append(":");
-			}
-			int b = digest[i] & 0xff;
-			String hex = Integer.toHexString(b);
-			if (hex.length() == 1) rv.append("0");
-			rv.append(hex);
-		}
-		return rv.toString();
-	}
-
 	public static String encodeKey(Key key) {
      return encodeBase64String(key.getEncoded());
  }

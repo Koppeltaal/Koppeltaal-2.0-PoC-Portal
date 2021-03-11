@@ -72,6 +72,7 @@ public class PatientDtoConverter implements DtoConverter<PatientDto, Patient> {
 		}
 	}
 
+	@SuppressWarnings("PMD.AvoidBranchingStatementAsLastInLoop")
 	public void applyResource(PatientDto patientDto, Patient patient) {
 		patientDto.setReference(getRelativeReference(patient.getIdElement()));
 

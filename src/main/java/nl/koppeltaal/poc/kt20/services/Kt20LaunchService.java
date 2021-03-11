@@ -216,7 +216,7 @@ public class Kt20LaunchService {
 
 			final String payload = jws.getCompactSerialization();
 			final boolean useJwe = isUseJwe(definition);
-			return (useJwe ? buildJweWrapping(payload) : payload);
+			return useJwe ? buildJweWrapping(payload) : payload;
 		} catch (JoseException | IOException | JwkException e) {
 			throw new GeneralSecurityException(e);
 		}

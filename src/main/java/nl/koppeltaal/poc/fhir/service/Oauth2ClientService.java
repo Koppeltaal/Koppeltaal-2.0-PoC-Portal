@@ -90,7 +90,7 @@ public class Oauth2ClientService {
 
 	public void getToken(String code, String redirectUri, TokenStorage tokenStorage) throws IOException {
 		String tokenUrl = fhirCapabilitiesService.getOAuth2Urls().getTokenUrl();
-		try (final CloseableHttpClient httpClient = createHttpClient()) {
+		try (CloseableHttpClient httpClient = createHttpClient()) {
 
 			List<NameValuePair> params = new ArrayList<>();
 			params.add(new BasicNameValuePair("grant_type", "authorization_code"));
@@ -122,7 +122,7 @@ public class Oauth2ClientService {
 
 	public void refreshToken(TokenStorage tokenStorage) throws IOException {
 		String tokenUrl = fhirCapabilitiesService.getOAuth2Urls().getTokenUrl();
-		try (final CloseableHttpClient httpClient = createHttpClient()) {
+		try (CloseableHttpClient httpClient = createHttpClient()) {
 
 			List<NameValuePair> params = new ArrayList<>();
 			params.add(new BasicNameValuePair("grant_type", "refresh_token"));

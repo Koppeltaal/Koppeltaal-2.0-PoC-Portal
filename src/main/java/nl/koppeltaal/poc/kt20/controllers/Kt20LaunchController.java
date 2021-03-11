@@ -90,7 +90,7 @@ public class Kt20LaunchController {
 	}
 
 	private String renderLaunchData(LaunchData launchData) throws UnsupportedEncodingException {
-		String method = (launchData.isRedirect() ? "get" : "post");
+		String method = launchData.isRedirect() ? "get" : "post";
 		return "<html>\n" +
 				"<head>\n" +
 				"</head>\n" +

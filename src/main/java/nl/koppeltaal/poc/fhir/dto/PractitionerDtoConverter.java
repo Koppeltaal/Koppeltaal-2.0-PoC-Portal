@@ -91,8 +91,7 @@ public class PractitionerDtoConverter implements DtoConverter<PractitionerDto, P
 
 	}
 
-
-
+	@SuppressWarnings("PMD.AvoidBranchingStatementAsLastInLoop")
 	public void applyResource(PractitionerDto practitionerDto, Practitioner practitioner) {
 
 		practitionerDto.setReference(getRelativeReference(practitioner.getIdElement()));
@@ -106,14 +105,13 @@ public class PractitionerDtoConverter implements DtoConverter<PractitionerDto, P
 		practitionerDto.setActive(practitioner.getActive());
 		List<ContactPoint> telecoms = practitioner.getTelecom();
 		for (ContactPoint telecom : telecoms) {
-			if (StringUtils.equals(telecom.getSystem().toCode(), "email")) {
-				if (StringUtils.equals(telecom.getUse().toCode(), "work")) {
-					practitionerDto.setEmail(telecom.getValue());
-				}
-			} else if (StringUtils.equals(telecom.getSystem().toCode(), "phone")) {
-				if (StringUtils.equals(telecom.getUse().toCode(), "work")) {
-					practitionerDto.setPhone(telecom.getValue());
-				}
+			if (StringUtils.equals(telecom.getSystem().toCode(), "email")
+					&& StringUtils.equals(telecom.getUse().toCode(), "work")) {
+				practitionerDto.setEmail(telecom.getValue());
+			}
+			if (StringUtils.equals(telecom.getSystem().toCode(), "phone")
+					&& StringUtils.equals(telecom.getUse().toCode(), "work")) {
+				practitionerDto.setPhone(telecom.getValue());
 			}
 		}
 

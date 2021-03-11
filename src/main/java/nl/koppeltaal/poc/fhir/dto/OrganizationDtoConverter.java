@@ -72,6 +72,7 @@ public class OrganizationDtoConverter implements DtoConverter<OrganizationDto, O
 
 	}
 
+	@SuppressWarnings("PMD.AvoidBranchingStatementAsLastInLoop")
 	public void applyResource(OrganizationDto organizationDto, Organization organization) {
 		organizationDto.setReference(getRelativeReference(organization.getIdElement()));
 
@@ -89,10 +90,9 @@ public class OrganizationDtoConverter implements DtoConverter<OrganizationDto, O
 				if (StringUtils.equals(telecom.getUse().toCode(), "work")) {
 					organizationDto.setEmail(telecom.getValue());
 				}
-			} else if (StringUtils.equals(telecom.getSystem().toCode(), "phone")) {
-				if (StringUtils.equals(telecom.getUse().toCode(), "work")) {
-					organizationDto.setPhone(telecom.getValue());
-				}
+			} else if (StringUtils.equals(telecom.getSystem().toCode(), "phone")
+					&& StringUtils.equals(telecom.getUse().toCode(), "work")) {
+				organizationDto.setPhone(telecom.getValue());
 			}
 		}
 
@@ -103,7 +103,6 @@ public class OrganizationDtoConverter implements DtoConverter<OrganizationDto, O
 			organizationDto.setAddressCountry(address.getCountry());
 			break;
 		}
-
 		for (CodeableConcept codeableConcept : organization.getType()) {
 			for (Coding coding : codeableConcept.getCoding()) {
 				if (StringUtils.equals(coding.getSystem(), "http://terminology.hl7.org/CodeSystem/organization-type")) {

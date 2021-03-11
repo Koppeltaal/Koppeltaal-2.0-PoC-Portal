@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class UrlUtils {
 	public static boolean isDefault(String scheme, int serverPort) {
-		return (StringUtils.equals("http", scheme) && serverPort == 80) || (StringUtils.equals("https", scheme) && serverPort == 443);
+		return StringUtils.equals("http", scheme) && serverPort == 80 || StringUtils.equals("https", scheme) && serverPort == 443;
 	}
 
 	public static String getServerUrl(String path, HttpServletRequest servletRequest) {

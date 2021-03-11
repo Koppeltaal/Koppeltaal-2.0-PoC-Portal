@@ -55,7 +55,7 @@ public class ActivityDefinitionDtoConverter implements DtoConverter<ActivityDefi
 
 		activityDefinitionDto.setDescription(activityDefinition.getDescription());
 		ActivityDefinition.ActivityDefinitionKind kind = activityDefinition.getKind();
-		activityDefinitionDto.setKind((kind != null ? kind.toCode() : null));
+		activityDefinitionDto.setKind(kind != null ? kind.toCode() : null);
 		Reference location = activityDefinition.getLocation();
 		activityDefinitionDto.setLocation(location != null ? location.getReference() : null);
 	}
