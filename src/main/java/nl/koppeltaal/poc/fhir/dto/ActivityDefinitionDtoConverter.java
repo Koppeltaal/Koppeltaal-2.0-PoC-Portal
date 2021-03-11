@@ -11,6 +11,7 @@ package nl.koppeltaal.poc.fhir.dto;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public class ActivityDefinitionDtoConverter implements DtoConverter<ActivityDefi
 
 	public void applyDto(ActivityDefinition activityDefinition, ActivityDefinitionDto activityDefinitionDto) {
 		setId(activityDefinition, activityDefinitionDto);
-		activityDefinition.addIdentifier(createIdentifier(activityDefinitionDto.getIdentifierSystem(), activityDefinitionDto.getIdentifierValue()));
+		activityDefinition.setIdentifier(Collections.singletonList(createIdentifier(activityDefinitionDto.getIdentifierSystem(), activityDefinitionDto.getIdentifierValue())));
 		activityDefinition.setName(activityDefinitionDto.getName());
 		activityDefinition.setTitle(activityDefinitionDto.getTitle());
 		activityDefinition.setUrl(activityDefinitionDto.getUrl());

@@ -1,9 +1,7 @@
 package nl.koppeltaal.poc.fhir.utils;
 
-import ca.uhn.fhir.model.api.IResource;
 import org.hl7.fhir.instance.model.api.IAnyResource;
 import org.hl7.fhir.instance.model.api.IIdType;
-import org.hl7.fhir.r4.model.BaseResource;
 
 /**
  *

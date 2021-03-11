@@ -9,7 +9,6 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import nl.koppeltaal.poc.fhir.dto.PatientDto;
 import nl.koppeltaal.poc.fhir.dto.PatientDtoConverter;
 import nl.koppeltaal.poc.fhir.service.Oauth2ClientService;
 import nl.koppeltaal.poc.portal.dto.UserDto;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 

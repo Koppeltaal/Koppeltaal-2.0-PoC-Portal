@@ -9,7 +9,6 @@
 package nl.koppeltaal.poc.portal.dto;
 
 import nl.koppeltaal.poc.fhir.dto.PatientDto;
-import org.hl7.fhir.r4.model.Patient;
 
 /**
  *

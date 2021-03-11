@@ -9,12 +9,10 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import nl.koppeltaal.poc.fhir.dto.AuthorizationUrlDto;
 import nl.koppeltaal.poc.fhir.service.Oauth2ClientService;
 import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
 import nl.koppeltaal.poc.fhir.service.PractitionerFhirClientService;
-import nl.koppeltaal.poc.jwt.JwtValidationService;
 import nl.koppeltaal.poc.utils.UrlUtils;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;

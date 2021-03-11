@@ -9,7 +9,6 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import nl.koppeltaal.poc.fhir.dto.ActivityDefinitionDto;
 import nl.koppeltaal.poc.fhir.dto.TaskDto;
 import nl.koppeltaal.poc.fhir.dto.TaskDtoConverter;
 import nl.koppeltaal.poc.fhir.service.ActivityDefinitionFhirClientService;

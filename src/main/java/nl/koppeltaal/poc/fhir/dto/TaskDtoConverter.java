@@ -8,11 +8,9 @@
 
 package nl.koppeltaal.poc.fhir.dto;
 
-import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.Task;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  *

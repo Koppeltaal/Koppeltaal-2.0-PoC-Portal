@@ -8,7 +8,9 @@
 
 package nl.koppeltaal.poc.jwt;
 
-import com.auth0.jwk.*;
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkException;
+import com.auth0.jwk.JwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
