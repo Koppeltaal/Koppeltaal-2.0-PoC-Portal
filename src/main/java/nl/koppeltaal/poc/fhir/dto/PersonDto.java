@@ -22,11 +22,11 @@ public class PersonDto extends BaseIdentifierDto {
 	String organization;
 
 	public Date getBirthDate() {
-		return birthDate;
+		return (birthDate == null ? null : new Date(birthDate.getTime()));
 	}
 
 	public void setBirthDate(Date birthDate) {
-		this.birthDate = birthDate;
+		this.birthDate = (birthDate == null ? null : new Date(birthDate.getTime()));
 	}
 
 	public String getGender() {

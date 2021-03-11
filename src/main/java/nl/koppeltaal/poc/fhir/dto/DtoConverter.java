@@ -50,15 +50,15 @@ public interface DtoConverter<D extends BaseDto, R extends DomainResource> {
 		return idElement.getResourceType()  +"/" + idElement.toUnqualifiedVersionless().getIdPart();
 	}
 
-	default String joinAdressLines(Address address) {
-		String addressLine = "";
+	default String joinAddressLines(Address address) {
+		StringBuilder addressLine = new StringBuilder();
 		for (StringType stringType : address.getLine()) {
 			if (StringUtils.isNotEmpty(addressLine)) {
-				addressLine += "\n";
+				addressLine.append("\n");
 			}
-			addressLine += stringType.getValue();
+			addressLine.append(stringType.getValue());
 		}
-		return addressLine;
+		return addressLine.toString();
 	}
 
 	default void setId(DomainResource resource, BaseDto dto) {

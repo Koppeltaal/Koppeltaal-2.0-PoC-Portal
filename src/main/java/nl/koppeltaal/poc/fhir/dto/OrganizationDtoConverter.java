@@ -97,7 +97,7 @@ public class OrganizationDtoConverter implements DtoConverter<OrganizationDto, O
 		}
 
 		for (Address address : organization.getAddress()) {
-			organizationDto.setAddressLines(joinAdressLines(address));
+			organizationDto.setAddressLines(joinAddressLines(address));
 			organizationDto.setAddressCity(address.getCity());
 			organizationDto.setAddressPostalCode(address.getPostalCode());
 			organizationDto.setAddressCountry(address.getCountry());

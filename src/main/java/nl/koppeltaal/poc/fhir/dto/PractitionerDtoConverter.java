@@ -118,7 +118,7 @@ public class PractitionerDtoConverter implements DtoConverter<PractitionerDto, P
 		}
 
 		for (Address address : practitioner.getAddress()) {
-			practitionerDto.setAddressLines(joinAdressLines(address));
+			practitionerDto.setAddressLines(joinAddressLines(address));
 			practitionerDto.setAddressCity(address.getCity());
 			practitionerDto.setAddressPostalCode(address.getPostalCode());
 			practitionerDto.setAddressCountry(address.getCountry());
