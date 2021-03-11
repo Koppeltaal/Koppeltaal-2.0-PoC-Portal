@@ -27,15 +27,6 @@ public class EndpointFhirClientService extends BaseFhirClientService<EndpointDto
 		super(fhirClientConfiguration, oauth2ClientService, fhirContext, locationDtoConverter);
 	}
 
-	protected String getIdentifier(String system, Endpoint resource) {
-		for (Identifier identifier : resource.getIdentifier()) {
-			if (StringUtils.equals(identifier.getSystem(), system)) {
-				return identifier.getValue();
-			}
-		}
-		return null;
-	}
-
 	@Override
 	protected String getResourceName() {
 		return "Endpoint";

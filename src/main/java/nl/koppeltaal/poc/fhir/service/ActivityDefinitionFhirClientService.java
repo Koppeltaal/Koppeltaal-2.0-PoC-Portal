@@ -38,15 +38,6 @@ public class ActivityDefinitionFhirClientService extends BaseFhirClientService<A
 		return "http:/vzvz.nl/artifacts";
 	}
 
-	protected String getIdentifier(String system, ActivityDefinition resource) {
-		for (Identifier identifier : resource.getIdentifier()) {
-			if (StringUtils.equals(identifier.getSystem(), system)) {
-				return identifier.getValue();
-			}
-		}
-		return null;
-	}
-
 	@Override
 	protected String getResourceName() {
 		return "ActivityDefinition";

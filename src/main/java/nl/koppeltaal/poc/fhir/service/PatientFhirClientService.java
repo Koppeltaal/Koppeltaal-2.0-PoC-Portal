@@ -27,15 +27,6 @@ public class PatientFhirClientService extends BaseFhirClientService<PatientDto, 
 		super(fhirClientConfiguration, oauth2ClientService, fhirContext, patientDtoConverter);
 	}
 
-	protected String getIdentifier(String system, Patient resource) {
-		for (Identifier identifier : resource.getIdentifier()) {
-			if (StringUtils.equals(identifier.getSystem(), system)) {
-				return identifier.getValue();
-			}
-		}
-		return null;
-	}
-
 	@Override
 	protected String getResourceName() {
 		return "Patient";

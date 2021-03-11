@@ -9,6 +9,7 @@
 package nl.koppeltaal.poc.fhir.service;
 
 import com.auth0.jwk.JwkException;
+import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,10 +112,10 @@ public class Oauth2ClientService {
 
 	public String getUserIdFromCredentials(TokenStorage tokenStorage) throws JwkException, IOException {
 		try {
-			return jwtValidationService.validate(tokenStorage.getToken().getIdToken(), fhirClientConfiguration.getClientId()).getSubject();
-		} catch (TokenExpiredException e) {
+			return jwtValidationService.validate(tokenStorage.getToken().getIdToken(), fhirClientConfiguration.getClientId(), 60).getSubject();
+		} catch (TokenExpiredException | InvalidClaimException  e) { // The implementation JWTVerifier.assertDateIsPast(JWTVerifier.java:479) throws an InvalidClaimException.
 			refreshToken(tokenStorage);
-			return jwtValidationService.validate(tokenStorage.getToken().getIdToken(), fhirClientConfiguration.getClientId()).getSubject();
+			return jwtValidationService.validate(tokenStorage.getToken().getIdToken(), fhirClientConfiguration.getClientId(), 60).getSubject();
 		}
 
 	}

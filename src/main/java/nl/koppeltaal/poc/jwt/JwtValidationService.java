@@ -63,6 +63,10 @@ public class JwtValidationService {
 	}
 
 	public DecodedJWT validate(String token, String audience) throws JwkException {
+		return validate(token, audience, 0);
+	}
+
+	public DecodedJWT validate(String token, String audience, int leeway) throws JwkException {
 		// Get the algorithm name from the JWT.
 		DecodedJWT decode = JWT.decode(token);
 		String algorithmName = decode.getAlgorithm();
@@ -84,6 +88,7 @@ public class JwtValidationService {
 			verification = verification.withAudience(audience); // Make sure to require yourself to be the audience.
 		}
 		return verification
+				.acceptLeeway(leeway)
 				.build()
 				.verify(token);
 	}

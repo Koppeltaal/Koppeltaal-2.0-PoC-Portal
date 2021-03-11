@@ -107,15 +107,6 @@ public class TaskFhirClientService extends BaseFhirClientService<TaskDto, Task> 
 		return "system";
 	}
 
-	protected String getIdentifier(String system, Task resource) {
-		for (Identifier identifier : resource.getIdentifier()) {
-			if (StringUtils.equals(identifier.getSystem(), system)) {
-				return identifier.getValue();
-			}
-		}
-		return null;
-	}
-
 	@Override
 	protected String getResourceName() {
 		return "Task";

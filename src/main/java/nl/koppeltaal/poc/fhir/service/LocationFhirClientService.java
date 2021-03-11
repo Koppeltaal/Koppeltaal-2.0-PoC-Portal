@@ -27,15 +27,6 @@ public class LocationFhirClientService extends BaseFhirClientService<LocationDto
 		super(fhirClientConfiguration, oauth2ClientService, fhirContext, locationDtoConverter);
 	}
 
-	protected String getIdentifier(String system, Location resource) {
-		for (Identifier identifier : resource.getIdentifier()) {
-			if (StringUtils.equals(identifier.getSystem(), system)) {
-				return identifier.getValue();
-			}
-		}
-		return null;
-	}
-
 	@Override
 	protected String getResourceName() {
 		return "Location";

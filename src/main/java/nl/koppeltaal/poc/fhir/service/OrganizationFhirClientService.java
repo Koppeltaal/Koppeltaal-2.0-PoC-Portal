@@ -27,15 +27,6 @@ public class OrganizationFhirClientService extends BaseFhirClientService<Organiz
 		super(fhirClientConfiguration, oauth2ClientService, fhirContext, organizationDtoConverter);
 	}
 
-	protected String getIdentifier(String system, Organization resource) {
-		for (Identifier identifier : resource.getIdentifier()) {
-			if (StringUtils.equals(identifier.getSystem(), system)) {
-				return identifier.getValue();
-			}
-		}
-		return null;
-	}
-
 	@Override
 	protected String getResourceName() {
 		return "Organization";

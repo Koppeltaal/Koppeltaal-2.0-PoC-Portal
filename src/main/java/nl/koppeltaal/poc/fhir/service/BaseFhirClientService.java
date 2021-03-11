@@ -24,6 +24,8 @@ import org.hl7.fhir.instance.model.api.IBaseOperationOutcome;
 import org.hl7.fhir.r4.model.*;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,7 +135,22 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 		return null;
 	}
 
-	protected abstract String getIdentifier(String system, R resource);
+	protected final String getIdentifier(String system, R resource) {
+		try {
+			Method getIdentifier = resource.getClass().getDeclaredMethod("getIdentifier");
+			List<Identifier> identifiers = (List<Identifier>) getIdentifier.invoke(resource);
+			for (Identifier identifier : identifiers) {
+				if (StringUtils.equals(identifier.getSystem(), system)) {
+					return identifier.getValue();
+				}
+			}
+		} catch (NoSuchMethodException | IllegalAccessException e) {
+			// Die silently
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+		return null;
+	}
 
 	protected R getResourceByIdentifier(TokenStorage tokenStorage, String identifierValue, String identifierSystem) throws JwkException, IOException {
 		ICriterion<TokenClientParam> criterion = new TokenClientParam("identifier").exactly().systemAndIdentifier(identifierSystem, identifierValue);

@@ -32,15 +32,6 @@ public class PractitionerFhirClientService extends BaseFhirClientService<Practit
 		return "IRMA";
 	}
 
-	protected String getIdentifier(String system, Practitioner resource) {
-		for (Identifier identifier : resource.getIdentifier()) {
-			if (StringUtils.equals(identifier.getSystem(), system)) {
-				return identifier.getValue();
-			}
-		}
-		return null;
-	}
-
 	@Override
 	protected String getResourceName() {
 		return "Practitioner";
