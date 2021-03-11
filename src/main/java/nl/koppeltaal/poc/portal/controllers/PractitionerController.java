@@ -8,8 +8,10 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
+import nl.koppeltaal.poc.fhir.dto.PractitionerDto;
 import nl.koppeltaal.poc.fhir.dto.PractitionerDtoConverter;
 import nl.koppeltaal.poc.fhir.service.PractitionerFhirClientService;
+import org.hl7.fhir.r4.model.Practitioner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,16 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController()
 @RequestMapping("/api/Practitioner")
-public class PractitionerController extends BaseResourceController {
-
-
-	final PractitionerFhirClientService fhirClientService;
-	final PractitionerDtoConverter dtoConverter;
+public class PractitionerController extends BaseResourceController<PractitionerDto, Practitioner> {
 
 	public PractitionerController(PractitionerFhirClientService fhirClientService, PractitionerDtoConverter dtoConverter) {
 		super(fhirClientService, dtoConverter);
-		this.fhirClientService = fhirClientService;
-		this.dtoConverter = dtoConverter;
 	}
 
 }

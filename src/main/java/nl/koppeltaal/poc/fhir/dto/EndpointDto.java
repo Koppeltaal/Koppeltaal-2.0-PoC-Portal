@@ -3,6 +3,7 @@ package nl.koppeltaal.poc.fhir.dto;
 /**
  *
  */
+@SuppressWarnings("unused")
 public class EndpointDto extends BaseDto {
 	String name;
 	String address;

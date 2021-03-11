@@ -62,6 +62,7 @@ public class JwtValidationService {
 		throw new IllegalArgumentException(String.format("Unsupported algorithm %s", algorithmName));
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	public DecodedJWT validate(String token, String audience) throws JwkException {
 		return validate(token, audience, 0);
 	}

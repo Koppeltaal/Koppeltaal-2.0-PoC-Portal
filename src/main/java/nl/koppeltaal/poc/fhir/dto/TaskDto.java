@@ -3,6 +3,7 @@ package nl.koppeltaal.poc.fhir.dto;
 /**
  *
  */
+@SuppressWarnings("unused")
 public class TaskDto extends BaseDto {
 	String activityDefinition;
 	String patient;

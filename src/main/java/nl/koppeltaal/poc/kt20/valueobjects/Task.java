@@ -16,8 +16,8 @@ public class Task {
 	String id;
 	Meta meta;
 	Text text;
-	Reference definitionReference = new Reference();
-	List<Identifier> identifier = new ArrayList();
+	final Reference definitionReference = new Reference();
+	List<Identifier> identifier = new ArrayList<>();
 	String status = "requested";
 	String intent = "plan";
 	@JsonProperty("for")
@@ -201,14 +201,6 @@ public class Task {
 		public void setDisplay(String display) {
 			this.display = display;
 		}
-
-//		public UserType getType() {
-//			return type;
-//		}
-//
-//		public void setType(UserType type) {
-//			this.type = type;
-//		}
 
 		public enum UserType {
 			Patient,

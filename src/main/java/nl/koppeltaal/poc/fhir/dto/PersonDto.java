@@ -13,6 +13,7 @@ import java.util.Date;
 /**
  *
  */
+@SuppressWarnings("unused")
 public class PersonDto extends BaseIdentifierDto {
 	String nameFamily;
 	String nameGiven;

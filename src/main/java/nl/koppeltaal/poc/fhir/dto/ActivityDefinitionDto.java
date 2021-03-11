@@ -11,6 +11,7 @@ package nl.koppeltaal.poc.fhir.dto;
 /**
  *
  */
+@SuppressWarnings("unused")
 public class ActivityDefinitionDto extends BaseIdentifierDto {
 	String name;
 	String title;

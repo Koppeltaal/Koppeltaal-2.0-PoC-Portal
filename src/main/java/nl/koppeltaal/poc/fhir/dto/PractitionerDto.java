@@ -11,6 +11,7 @@ package nl.koppeltaal.poc.fhir.dto;
 /**
  *
  */
+@SuppressWarnings("unused")
 public class PractitionerDto extends PersonDto {
 	String email;
 	String phone;

@@ -64,19 +64,13 @@ public class TaskFhirClientService extends BaseFhirClientService<TaskDto, Task> 
 
 	private Reference buildReference(Resource resource) {
 		if (resource == null) return null;
-		Reference reference = new Reference(getRelativeReference(resource.getIdElement()));
-		return reference;
+		return new Reference(getRelativeReference(resource.getIdElement()));
 	}
 
 
 	private Reference buildReference(Patient patient) {
 		if (patient == null) return null;
-		Reference reference = new Reference(getRelativeReference(patient.getIdElement()));
-//		for (Identifier identifier : patient.getIdentifier()) {
-//			reference.setIdentifier(identifier);
-//			break;
-//		}
-		return reference;
+		return new Reference(getRelativeReference(patient.getIdElement()));
 	}
 
 

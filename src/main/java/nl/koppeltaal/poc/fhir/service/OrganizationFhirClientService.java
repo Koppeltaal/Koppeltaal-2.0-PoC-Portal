@@ -12,8 +12,6 @@ import ca.uhn.fhir.context.FhirContext;
 import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
 import nl.koppeltaal.poc.fhir.dto.OrganizationDto;
 import nl.koppeltaal.poc.fhir.dto.OrganizationDtoConverter;
-import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Organization;
 import org.springframework.stereotype.Service;
 

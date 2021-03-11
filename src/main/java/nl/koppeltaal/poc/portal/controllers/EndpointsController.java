@@ -22,14 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/Endpoint")
 public class EndpointsController extends BaseResourceController<EndpointDto, Endpoint> {
 
-
-	final EndpointFhirClientService fhirClientService;
-	final EndpointDtoConverter dtoConverter;
-
 	public EndpointsController(EndpointFhirClientService fhirClientService, EndpointDtoConverter dtoConverter) {
 		super(fhirClientService, dtoConverter);
-		this.fhirClientService = fhirClientService;
-		this.dtoConverter = dtoConverter;
 	}
 
 }

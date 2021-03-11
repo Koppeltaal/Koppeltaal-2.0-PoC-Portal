@@ -23,7 +23,7 @@ public class BaseResourceController<D extends BaseDto, R extends DomainResource>
 	final BaseFhirClientService<D, R> fhirClientService;
 	final DtoConverter<D, R> dtoConverter;
 
-	public BaseResourceController(BaseFhirClientService fhirClientService, DtoConverter dtoConverter) {
+	public BaseResourceController(BaseFhirClientService<D, R> fhirClientService, DtoConverter<D, R> dtoConverter) {
 		this.fhirClientService = fhirClientService;
 		this.dtoConverter = dtoConverter;
 	}

@@ -12,8 +12,6 @@ import ca.uhn.fhir.context.FhirContext;
 import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
 import nl.koppeltaal.poc.fhir.dto.PractitionerDto;
 import nl.koppeltaal.poc.fhir.dto.PractitionerDtoConverter;
-import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.springframework.stereotype.Service;
 

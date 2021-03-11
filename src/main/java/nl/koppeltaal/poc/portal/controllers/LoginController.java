@@ -77,6 +77,7 @@ public class LoginController {
 		return new RedirectView(authorizationUrl.getUrl());
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	@RequestMapping("/logout")
 	public String logout(HttpSession httpSession, RedirectAttributes redirectAttributes, HttpServletRequest request) {
 		httpSession.removeAttribute("credentials");

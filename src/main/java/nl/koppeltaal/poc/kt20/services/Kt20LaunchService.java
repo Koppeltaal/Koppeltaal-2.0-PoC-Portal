@@ -250,7 +250,8 @@ public class Kt20LaunchService {
 		return kt20ClientConfiguration.isUseJwe();
 	}
 
-	private Map toMap(Task task) {
+	@SuppressWarnings("unchecked")
+	private Map<Object, Object> toMap(Task task) {
 		return objectMapper.convertValue(task, Map.class);
 	}
 }

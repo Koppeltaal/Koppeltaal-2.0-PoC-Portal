@@ -32,6 +32,7 @@ import java.util.List;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainResource> {
 
 	final FhirClientConfiguration fhirClientConfiguration;

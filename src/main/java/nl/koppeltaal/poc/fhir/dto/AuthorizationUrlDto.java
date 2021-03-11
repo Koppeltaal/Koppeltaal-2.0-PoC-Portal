@@ -15,7 +15,7 @@ import java.util.Map;
  *
  */
 public class AuthorizationUrlDto {
-	Map<String, String> parameters = new HashMap<>();
+	final Map<String, String> parameters = new HashMap<>();
 	String url;
 	String state;
 
