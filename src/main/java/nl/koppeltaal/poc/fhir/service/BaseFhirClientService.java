@@ -48,15 +48,13 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 	}
 
 	public void deleteResource(TokenStorage sessionTokenStorage, String id) throws IOException, JwkException {
-		IBaseOperationOutcome outcome = getFhirClient(sessionTokenStorage).delete().resourceById(getResourceName(), id).execute();
-		System.out.println(outcome);
+		getFhirClient(sessionTokenStorage).delete().resourceById(getResourceName(), id).execute();
 	}
 
 	public void deleteResourceByReference(TokenStorage sessionTokenStorage, String id) throws IOException, JwkException {
 		R resource = getResourceByReference(sessionTokenStorage, id);
 		if (resource != null) {
-			IBaseOperationOutcome outcome = getFhirClient(sessionTokenStorage).delete().resource(resource).execute();
-			System.out.println(outcome);
+			getFhirClient(sessionTokenStorage).delete().resource(resource).execute();
 		}
 	}
 
