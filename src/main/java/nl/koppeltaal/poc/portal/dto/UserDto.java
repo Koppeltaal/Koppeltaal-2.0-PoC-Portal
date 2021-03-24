@@ -16,6 +16,8 @@ import nl.koppeltaal.poc.fhir.dto.PatientDto;
 public class UserDto {
 	PatientDto patient;
 	private String userId;
+	private String nameGiven;
+	private String nameFamily;
 	private boolean loggedIn;
 
 	public boolean getLoggedIn() {
@@ -24,6 +26,22 @@ public class UserDto {
 
 	public void setLoggedIn(boolean loggedIn) {
 		this.loggedIn = loggedIn;
+	}
+
+	public String getNameFamily() {
+		return nameFamily;
+	}
+
+	public void setNameFamily(String nameFamily) {
+		this.nameFamily = nameFamily;
+	}
+
+	public String getNameGiven() {
+		return nameGiven;
+	}
+
+	public void setNameGiven(String nameGiven) {
+		this.nameGiven = nameGiven;
 	}
 
 	public PatientDto getPatient() {

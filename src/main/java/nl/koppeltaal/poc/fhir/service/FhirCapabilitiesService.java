@@ -34,7 +34,7 @@ public class FhirCapabilitiesService {
 
 	public OAuth2Urls getOAuth2Urls() {
 		OAuth2Urls oAuth2Urls = new OAuth2Urls();
-		IGenericClient client = fhirContext.newRestfulGenericClient(fhirClientConfiguration.getBaseUrl());
+		IGenericClient client = fhirContext.newRestfulGenericClient(fhirClientConfiguration.getServerUrl());
 		IFetchConformanceUntyped capabilities = client.capabilities();
 		IFetchConformanceTyped<CapabilityStatement> conformanceTyped = capabilities.ofType(CapabilityStatement.class);
 		CapabilityStatement capabilityStatement = conformanceTyped.execute();

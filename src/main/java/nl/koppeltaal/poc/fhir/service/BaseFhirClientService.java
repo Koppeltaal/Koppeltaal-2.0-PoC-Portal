@@ -20,7 +20,6 @@ import nl.koppeltaal.poc.fhir.dto.BaseDto;
 import nl.koppeltaal.poc.fhir.dto.DtoConverter;
 import nl.koppeltaal.poc.generic.TokenStorage;
 import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.instance.model.api.IBaseOperationOutcome;
 import org.hl7.fhir.r4.model.*;
 
 import java.io.IOException;
@@ -117,7 +116,7 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 
 	protected IGenericClient getFhirClient(TokenStorage tokenStorage) throws JwkException, IOException {
 
-		IGenericClient iGenericClient = fhirContext.newRestfulGenericClient(fhirClientConfiguration.getBaseUrl());
+		IGenericClient iGenericClient = fhirContext.newRestfulGenericClient(fhirClientConfiguration.getServerUrl());
 
 		iGenericClient.registerInterceptor(new BearerTokenAuthInterceptor(oauth2ClientService.getAccessToken(tokenStorage)));
 

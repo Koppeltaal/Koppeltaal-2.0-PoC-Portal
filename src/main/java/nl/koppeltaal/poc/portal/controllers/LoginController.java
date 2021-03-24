@@ -14,6 +14,7 @@ import nl.koppeltaal.poc.fhir.service.Oauth2ClientService;
 import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
 import nl.koppeltaal.poc.fhir.service.PractitionerFhirClientService;
 import nl.koppeltaal.poc.utils.UrlUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.junit.Assert;
@@ -53,15 +54,17 @@ public class LoginController {
 
 		oauth2ClientService.getToken(code, UrlUtils.getServerUrl("/code_response", request), tokenStorage);
 
-		String userIdFromCredentials = oauth2ClientService.getUserIdFromCredentials(tokenStorage);
-		Patient patient = patientFhirClientService.getResourceByIdentifier(tokenStorage, userIdFromCredentials);
-		Practitioner practitioner = practitionerFhirClientService.getResourceByIdentifier(tokenStorage, userIdFromCredentials);
-		if  (practitioner != null) {
+		String userReference = oauth2ClientService.getUserIdFromCredentials(tokenStorage);
+		if (StringUtils.startsWith(userReference, "Practitioner")) {
+			Practitioner practitioner = practitionerFhirClientService.getResourceByReference(tokenStorage, userReference);
 			httpSession.setAttribute("user", practitioner);
 			return "redirect:practitioner/index.html";
-		} else if (patient != null) {
+		} else if (StringUtils.startsWith(userReference, "Patient")) {
+			Patient patient = patientFhirClientService.getResourceByReference(tokenStorage, userReference);
 			httpSession.setAttribute("user", patient);
 			return "redirect:patient/index.html";
+		} else if (StringUtils.startsWith(userReference, "RelatedPerson")) {
+			// TODO:
 		}
 
 

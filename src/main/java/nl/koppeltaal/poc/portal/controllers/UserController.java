@@ -9,10 +9,12 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import nl.koppeltaal.poc.fhir.dto.PatientDtoConverter;
+import nl.koppeltaal.poc.fhir.dto.*;
 import nl.koppeltaal.poc.fhir.service.Oauth2ClientService;
 import nl.koppeltaal.poc.portal.dto.UserDto;
 import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.RelatedPerson;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,10 +32,14 @@ public class UserController {
 	final Oauth2ClientService oauth2ClientService;
 
 	final PatientDtoConverter patientDtoConverter;
+	final PractitionerDtoConverter practitionerDtoConverter;
+	final RelatedPersonDtoConverter relatedPersonDtoConverter;
 
-	public UserController(Oauth2ClientService oauth2ClientService, PatientDtoConverter patientDtoConverter) {
+	public UserController(Oauth2ClientService oauth2ClientService, PatientDtoConverter patientDtoConverter, PractitionerDtoConverter practitionerDtoConverter, RelatedPersonDtoConverter relatedPersonDtoConverter) {
 		this.oauth2ClientService = oauth2ClientService;
 		this.patientDtoConverter = patientDtoConverter;
+		this.practitionerDtoConverter = practitionerDtoConverter;
+		this.relatedPersonDtoConverter = relatedPersonDtoConverter;
 	}
 
 	@RequestMapping(value = "current", method = RequestMethod.GET)
@@ -49,7 +55,18 @@ public class UserController {
 
 		Object user = httpSession.getAttribute("user");
 		if (user instanceof Patient) {
-			rv.setPatient(patientDtoConverter.convert((Patient) user));
+			PatientDto dto = patientDtoConverter.convert((Patient) user);
+			rv.setPatient(dto);
+			rv.setNameGiven(dto.getNameGiven());
+			rv.setNameFamily(dto.getNameFamily());
+		} else if (user instanceof Practitioner) {
+			PractitionerDto dto = practitionerDtoConverter.convert((Practitioner) user);
+			rv.setNameGiven(dto.getNameGiven());
+			rv.setNameFamily(dto.getNameFamily());
+		} else if (user instanceof RelatedPerson) {
+			RelatedPersonDto dto = relatedPersonDtoConverter.convert((RelatedPerson) user);
+			rv.setNameGiven(dto.getNameGiven());
+			rv.setNameFamily(dto.getNameFamily());
 		}
 		return rv;
 	}

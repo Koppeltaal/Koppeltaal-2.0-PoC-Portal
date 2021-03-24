@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "fhir.client")
 public class FhirClientConfiguration {
-	String baseUrl;
+	String serverUrl;
 	String clientId;
 
 	@Bean
@@ -27,12 +27,12 @@ public class FhirClientConfiguration {
 		return FhirContext.forR4();
 	}
 
-	public String getBaseUrl() {
-		return baseUrl;
+	public String getServerUrl() {
+		return serverUrl;
 	}
 
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
+	public void setServerUrl(String serverUrl) {
+		this.serverUrl = serverUrl;
 	}
 
 	public String getClientId() {
