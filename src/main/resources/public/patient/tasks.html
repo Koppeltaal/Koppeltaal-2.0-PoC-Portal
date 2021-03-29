@@ -30,6 +30,7 @@
         <ul class="tabs tabs-transparent">
             <li class="tab"><a href="index.html">Main</a></li>
             <li class="tab"><a href="tasks.html" class="active">Tasks</a></li>
+            <li class="tab"><a href="relatedpersons.html">Friends & Family</a></li>
         </ul>
     </div>
 </nav>
@@ -96,16 +97,15 @@
         for (var i in data) {
           const tdata = document.querySelector('div.activitydefinitions table.data tbody');
           tdata.innerHTML = '';
-          for (let i in data) {
-            const activitydefinition = data[i];
+          for (let activitydefinition of Object.values(data)) {
             const tr = document.createElement('tr');
             tr.append(createTd(activitydefinition.title));
             let td = document.createElement('td');
             let addAction = parseHtml('<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">add_box</i>add</a>')
-            addAction.onclick = (event) => {
+            addAction.onclick = () => {
               fetch('/api/Task/' + activitydefinition.reference + "/" + patient.reference, {method: 'PUT'})
                 .then(jsonResponseHandler)
-                .then((data) => {
+                .then(() => {
                   renderTasks(patient, activitydefinitions, practitioners)
                 });
               return false;
@@ -135,8 +135,7 @@
       .then(jsonResponseHandler)
       .then((data) => {
         const practitioners = {}
-        for (var i in data) {
-          let practitioner = data[i];
+        for (const practitioner of data) {
           practitioners[practitioner.reference] = practitioner;
         }
         renderActivityDefinitions(patient, practitioners);
@@ -147,23 +146,20 @@
     fetch('/api/Task/' + patient.reference)
       .then(jsonResponseHandler)
       .then((data) => {
-        for (var i in data) {
-          const tdata = document.querySelector('div.tasks table.data tbody');
-          tdata.innerHTML = '';
-          for (let i in data) {
-            const task = data[i];
-            if (isTaskActive(task)) {
-              const tr = document.createElement('tr');
-              tr.append(createTd(task.reference));
-              tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
-              tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
-              tr.append(createTd(task.status));
-              let td = document.createElement('td');
-              let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
-              td.append(startAction);
-              tr.append(td);
-              tdata.append(tr);
-            }
+        const tdata = document.querySelector('div.tasks table.data tbody');
+        tdata.innerHTML = '';
+        for (let task of Object.values(data)) {
+          if (isTaskActive(task)) {
+            const tr = document.createElement('tr');
+            tr.append(createTd(task.reference));
+            tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
+            tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
+            tr.append(createTd(task.status));
+            let td = document.createElement('td');
+            let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
+            td.append(startAction);
+            tr.append(td);
+            tdata.append(tr);
           }
         }
       });
@@ -177,17 +173,14 @@
       fetch('/api/' + patient.reference)
         .then(jsonResponseHandler)
         .then((patient) => {
-          for (let i in patient) {
-            if (patient.hasOwnProperty(i)) {
-              let element = document.querySelector('.patient_' + i);
-              if (element) {
-                if (i.endsWith('Date')) {
-                  var options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
-                  var date = new Date(patient[i])
-                  element.textContent = date.toLocaleDateString();
-                } else {
-                  element.textContent = patient[i];
-                }
+          for (let i of Object.keys(patient)) {
+            let element = document.querySelector('.patient_' + i);
+            if (element) {
+              if (i.endsWith('Date')) {
+                let date = new Date(patient[i])
+                element.textContent = date.toLocaleDateString();
+              } else {
+                element.textContent = patient[i];
               }
             }
           }

@@ -19,6 +19,7 @@ import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
 import nl.koppeltaal.poc.fhir.dto.BaseDto;
 import nl.koppeltaal.poc.fhir.dto.DtoConverter;
 import nl.koppeltaal.poc.generic.TokenStorage;
+import nl.koppeltaal.poc.portal.controllers.SessionTokenStorage;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
 
@@ -83,6 +84,20 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 	public List<R> getResources(TokenStorage tokenStorage) throws JwkException, IOException {
 		List<R> rv = new ArrayList<>();
 		Bundle bundle = getFhirClient(tokenStorage).search().forResource(getResourceName()).returnBundle(Bundle.class).execute();
+		for (Bundle.BundleEntryComponent component : bundle.getEntry()) {
+			R resource = (R) component.getResource();
+			rv.add(resource);
+		}
+		return rv;
+	}
+
+	public List<R> getResourcesWithAttribute(SessionTokenStorage tokenStorage, String attribute, String id) throws IOException, JwkException {
+		List<R> rv = new ArrayList<>();
+		ICriterion<TokenClientParam> criterion = new TokenClientParam(attribute).exactly().identifier(id);
+		Bundle bundle = getFhirClient(tokenStorage).search()
+				.forResource(getResourceName())
+				.where(criterion)
+				.returnBundle(Bundle.class).execute();
 		for (Bundle.BundleEntryComponent component : bundle.getEntry()) {
 			R resource = (R) component.getResource();
 			rv.add(resource);

@@ -19,7 +19,7 @@
 </head>
 <body>
 
-<nav class="nav-extended cyan darken-1">
+<nav class="nav-extended deep-orange darken-1">
     <div class="nav-wrapper ">
         &nbsp; <a href="#" class="brand-logo">Het Portaal <i class="large material-icons">public</i></a>
         <ul id="nav-mobile" class="right">
@@ -27,17 +27,17 @@
             <li><a href="/logout" class="loggedin">Logout</a></li>
         </ul>
     </div>
-    <div class="nav-content loggedin cyan lighten-3">
+    <div class="nav-content loggedin deep-orange lighten-3">
         <ul class="tabs tabs-transparent">
             <li class="tab"><a href="index.html" class="active">Main</a></li>
-            <li class="tab"><a href="patients.html">Patients</a></li>
+            <li class="tab"><a href="tasks.html">Tasks</a></li>
         </ul>
     </div>
 </nav>
 <div class="container content-tab main">
     <div class="row">
         <div class="col s12">
-            <h1>Welcome to the Practitioner portal</h1>
+            <h1>Welcome to the Patient portal</h1>
             <p class="loggedin">Hello, <span class="user"></span></p>
             <p class="loggedin">Welcome to Het Portaal.</p>
         </div>
@@ -49,6 +49,7 @@
 <script type="text/javascript" src="../js/utils.js"></script>
 <script>
   var currentUser;
+  var patient;
 
   document.addEventListener('DOMContentLoaded', function () {
     hide('.loggedout, .loggedin')
@@ -56,6 +57,7 @@
       if (user.loggedIn) {
         show('.loggedin')
         currentUser = user;
+        patient = user.patient
       } else {
         show('.loggedout')
         currentUser = null;

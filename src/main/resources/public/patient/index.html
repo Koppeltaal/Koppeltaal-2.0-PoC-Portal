@@ -31,6 +31,7 @@
         <ul class="tabs tabs-transparent">
             <li class="tab"><a href="index.html" class="active">Main</a></li>
             <li class="tab"><a href="tasks.html">Tasks</a></li>
+            <li class="tab"><a href="relatedpersons.html">Friends & Family</a></li>
         </ul>
     </div>
 </nav>
@@ -60,10 +61,10 @@
         patient = user.patient
       } else {
         show('.loggedout')
-        delete currentUser;
+        currentUser = null;
       }
       if (currentUser) {
-        document.querySelector('.user').textContent = currentUser.userId;
+        document.querySelector('.user').textContent = currentUser.userIdentifier;
       }
     });
   }, false);

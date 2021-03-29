@@ -1,24 +1,22 @@
-/*
- * Copyright (c) Stichting Koppeltaal 2021.
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
-
 package nl.koppeltaal.poc.fhir.dto;
 
 /**
  *
  */
-@SuppressWarnings("unused")
-public class PractitionerDto extends OrgPersonDto {
+public class RelatedPersonDto extends PersonDto {
 	String email;
 	String phone;
 	String addressLines;
 	String addressCity;
 	String addressPostalCode;
 	String addressCountry;
+	String patient;
+	/**
+	 * Format relationshipSystem|relationshipCode
+	 */
+	String relationship;
+	String relationshipSystem;
+	String relationshipCode;
 
 	public String getAddressCity() {
 		return addressCity;
@@ -60,12 +58,44 @@ public class PractitionerDto extends OrgPersonDto {
 		this.email = email;
 	}
 
+	public String getPatient() {
+		return patient;
+	}
+
+	public void setPatient(String patient) {
+		this.patient = patient;
+	}
+
 	public String getPhone() {
 		return phone;
 	}
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public String getRelationship() {
+		return relationship;
+	}
+
+	public void setRelationship(String relationship) {
+		this.relationship = relationship;
+	}
+
+	public String getRelationshipCode() {
+		return relationshipCode;
+	}
+
+	public void setRelationshipCode(String relationshipCode) {
+		this.relationshipCode = relationshipCode;
+	}
+
+	public String getRelationshipSystem() {
+		return relationshipSystem;
+	}
+
+	public void setRelationshipSystem(String relationshipSystem) {
+		this.relationshipSystem = relationshipSystem;
 	}
 
 }

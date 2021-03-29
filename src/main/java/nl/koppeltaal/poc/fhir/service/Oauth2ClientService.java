@@ -11,6 +11,7 @@ package nl.koppeltaal.poc.fhir.service;
 import com.auth0.jwk.JwkException;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
@@ -19,6 +20,7 @@ import nl.koppeltaal.poc.generic.Oauth2TokenResponse;
 import nl.koppeltaal.poc.generic.TokenStorage;
 import nl.koppeltaal.poc.jwt.JwtValidationService;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -111,12 +113,30 @@ public class Oauth2ClientService {
 	}
 
 	public String getUserIdFromCredentials(TokenStorage tokenStorage) throws JwkException, IOException {
+		DecodedJWT token = getIdToken(tokenStorage);
+		return token.getSubject();
+
+	}
+
+	private DecodedJWT getIdToken(TokenStorage tokenStorage) throws JwkException, IOException {
+		DecodedJWT token;
 		try {
-			return jwtValidationService.validate(tokenStorage.getToken().getIdToken(), fhirClientConfiguration.getClientId(), 60).getSubject();
-		} catch (TokenExpiredException | InvalidClaimException  e) { // The implementation JWTVerifier.assertDateIsPast(JWTVerifier.java:479) throws an InvalidClaimException.
+			token = jwtValidationService.validate(tokenStorage.getToken().getIdToken(), fhirClientConfiguration.getClientId(), 60);
+
+		} catch (TokenExpiredException | InvalidClaimException e) { // The implementation JWTVerifier.assertDateIsPast(JWTVerifier.java:479) throws an InvalidClaimException.
 			refreshToken(tokenStorage);
-			return jwtValidationService.validate(tokenStorage.getToken().getIdToken(), fhirClientConfiguration.getClientId(), 60).getSubject();
+			token = jwtValidationService.validate(tokenStorage.getToken().getIdToken(), fhirClientConfiguration.getClientId(), 60);
 		}
+		return token;
+	}
+
+	public String getUserIdentifierFromCredentials(TokenStorage tokenStorage) throws JwkException, IOException {
+		DecodedJWT token = getIdToken(tokenStorage);
+		String email = token.getClaim("email").asString();
+		if (StringUtils.isNotEmpty(email)) {
+			return email;
+		}
+		return token.getSubject();
 
 	}
 

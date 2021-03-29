@@ -11,6 +11,7 @@ package nl.koppeltaal.poc.portal.controllers;
 import com.auth0.jwk.JwkException;
 import nl.koppeltaal.poc.fhir.dto.*;
 import nl.koppeltaal.poc.fhir.service.Oauth2ClientService;
+import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
 import nl.koppeltaal.poc.portal.dto.UserDto;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
@@ -34,12 +35,14 @@ public class UserController {
 	final PatientDtoConverter patientDtoConverter;
 	final PractitionerDtoConverter practitionerDtoConverter;
 	final RelatedPersonDtoConverter relatedPersonDtoConverter;
+	final PatientFhirClientService patientFhirClientService;
 
-	public UserController(Oauth2ClientService oauth2ClientService, PatientDtoConverter patientDtoConverter, PractitionerDtoConverter practitionerDtoConverter, RelatedPersonDtoConverter relatedPersonDtoConverter) {
+	public UserController(Oauth2ClientService oauth2ClientService, PatientDtoConverter patientDtoConverter, PractitionerDtoConverter practitionerDtoConverter, RelatedPersonDtoConverter relatedPersonDtoConverter, PatientFhirClientService patientFhirClientService) {
 		this.oauth2ClientService = oauth2ClientService;
 		this.patientDtoConverter = patientDtoConverter;
 		this.practitionerDtoConverter = practitionerDtoConverter;
 		this.relatedPersonDtoConverter = relatedPersonDtoConverter;
+		this.patientFhirClientService = patientFhirClientService;
 	}
 
 	@RequestMapping(value = "current", method = RequestMethod.GET)
@@ -48,6 +51,7 @@ public class UserController {
 		SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
 		if (tokenStorage.hasToken()) {
 			rv.setUserId(oauth2ClientService.getUserIdFromCredentials(tokenStorage));
+			rv.setUserIdentifier(oauth2ClientService.getUserIdentifierFromCredentials(tokenStorage));
 			rv.setLoggedIn(true);
 		} else {
 			rv.setLoggedIn(false);
@@ -65,6 +69,8 @@ public class UserController {
 			rv.setNameFamily(dto.getNameFamily());
 		} else if (user instanceof RelatedPerson) {
 			RelatedPersonDto dto = relatedPersonDtoConverter.convert((RelatedPerson) user);
+			String patient = dto.getPatient();
+			rv.setPatient(patientDtoConverter.convert(patientFhirClientService.getResourceByReference(tokenStorage, patient)));
 			rv.setNameGiven(dto.getNameGiven());
 			rv.setNameFamily(dto.getNameFamily());
 		}

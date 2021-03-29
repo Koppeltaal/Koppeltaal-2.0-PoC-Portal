@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Date;
 
 /**
  *
@@ -35,11 +36,9 @@ public class JwtValidationService {
 	 * algorithm from the header. The public key must match the algorithm type (RSA or EC), but
 	 * the size of the hash algorithm can vary.
 	 *
-	 * @param publicKey
-	 * @param algorithmName
+	 * @param publicKey, the public key
+	 * @param algorithmName, name of the algorithm
 	 * @return in instance of the {@link Algorithm} class.
-	 * @throws NoSuchAlgorithmException
-	 * @throws InvalidKeySpecException
 	 * @throws IllegalArgumentException if the algorithmName is not one of RS{256,384,512} or ES{256,384,512}
 	 */
 	private static Algorithm getValidationAlgorithm(PublicKey publicKey, String algorithmName) throws IllegalArgumentException {
@@ -64,7 +63,7 @@ public class JwtValidationService {
 
 	@SuppressWarnings("UnusedReturnValue")
 	public DecodedJWT validate(String token, String audience) throws JwkException {
-		return validate(token, audience, 0);
+		return validate(token, audience, 10);
 	}
 
 	public DecodedJWT validate(String token, String audience, int leeway) throws JwkException {
@@ -84,14 +83,19 @@ public class JwtValidationService {
 		// Decode and verify the token.
 		Verification verification = JWT.require(algorithm)
 				.withIssuer(issuer) // Make sure to require yourself to be the audience.
-				.acceptLeeway(0);
+				.acceptLeeway(leeway);
 		if (StringUtils.isNotEmpty(audience)) {
 			verification = verification.withAudience(audience); // Make sure to require yourself to be the audience.
 		}
-		return verification
-				.acceptLeeway(leeway)
-				.build()
-				.verify(token);
+		try {
+			return verification
+					.build()
+					.verify(token);
+		} catch (Throwable e) {
+			Date now = new Date();
+			System.out.println("The time is: " + now);
+			throw e;
+		}
 	}
 
 }

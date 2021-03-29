@@ -115,7 +115,7 @@ public class PatientDtoConverter implements DtoConverter<PatientDto, Patient> {
 		Reference organization = patient.getManagingOrganization();
 		if (organization != null) {
 			Identifier identifier = organization.getIdentifier();
-			if (identifier != null) {
+			if (identifier != null && StringUtils.isNotEmpty(identifier.getSystem()) && StringUtils.isNotEmpty(identifier.getValue())) {
 				patientDto.setOrganization(String.format("%s|%s", identifier.getSystem(), identifier.getValue()));
 			}
 		}

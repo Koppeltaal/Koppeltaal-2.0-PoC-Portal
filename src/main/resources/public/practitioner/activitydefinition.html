@@ -84,46 +84,41 @@
       const patient = urlParams.get('patient');
       const activityDefinition = urlParams.get('activityDefinition');
 
-      document.querySelector('#startLink').href='/kt2/launch/' + activityDefinition + '/' + patient;
+      document.querySelector('#startLink').href = '/kt2/launch/' + activityDefinition + '/' + patient;
 
       fetch('/api/' + activityDefinition)
         .then(jsonResponseHandler)
         .then((activitydefinition) => {
-          for (let i in activitydefinition) {
-            if (activitydefinition.hasOwnProperty(i)) {
-              let element = document.querySelector('.activitydefinition_' + i);
-              if (element) {
-                if (i.endsWith('Date')) {
-                  var options = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'};
-                  var date = new Date(activitydefinition[i])
-                  element.textContent = date.toLocaleDateString();
-                } if (i.endsWith('description')) {
-                  element.innerHTML = formatPlainText(activitydefinition[i]);
-                } else {
-                  element.textContent = activitydefinition[i];
-                }
+          for (let i of Object.keys(activitydefinition)) {
+            let element = document.querySelector('.activitydefinition_' + i);
+            if (element) {
+              if (i.endsWith('Date')) {
+                let date = new Date(activitydefinition[i])
+                element.textContent = date.toLocaleDateString();
+              }
+              if (i.endsWith('description')) {
+                element.innerHTML = formatPlainText(activitydefinition[i]);
+              } else {
+                element.textContent = activitydefinition[i];
               }
             }
           }
           fetch('/api/Task/' + patient)
             .then(jsonResponseHandler)
             .then((data) => {
-              for (var i in data) {
-                const tdata = document.querySelector('div.tasks table.data tbody');
-                tdata.innerHTML = '';
-                for (let i in data) {
-                  const task = data[i];
-                  if (task['activityDefinition'] === activityDefinition) {
-                    const tr = document.createElement('tr');
-                    tr.append(createTd(task.reference));
-                    tr.append(createTd(task.status));
-                    let td = document.createElement('td');
-                    let startAction = parseHtml('<a href="task.html?reference=' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
-                    td.append(startAction);
-                    td.append(' ');
-                    tr.append(td);
-                    tdata.append(tr);
-                  }
+              const tdata = document.querySelector('div.tasks table.data tbody');
+              tdata.innerHTML = '';
+              for (let task of Object.values(data)) {
+                if (task['activityDefinition'] === activityDefinition) {
+                  const tr = document.createElement('tr');
+                  tr.append(createTd(task.reference));
+                  tr.append(createTd(task.status));
+                  let td = document.createElement('td');
+                  let startAction = parseHtml('<a href="task.html?reference=' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
+                  td.append(startAction);
+                  td.append(' ');
+                  tr.append(td);
+                  tdata.append(tr);
                 }
               }
             });

@@ -69,8 +69,7 @@
       .then((data) => {
         const tdata = document.querySelector('div.patients table.data tbody');
         tdata.innerHTML = '';
-        for (let i in data) {
-          const patient = data[i];
+        for (let patient of Object.values(data)) {
           const tr = document.createElement('tr');
 
           tr.append(createTd(patient.nameGiven, patient.nameFamily));

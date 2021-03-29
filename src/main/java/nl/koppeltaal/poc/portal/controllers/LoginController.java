@@ -10,13 +10,12 @@ package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
 import nl.koppeltaal.poc.fhir.dto.AuthorizationUrlDto;
-import nl.koppeltaal.poc.fhir.service.Oauth2ClientService;
-import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
-import nl.koppeltaal.poc.fhir.service.PractitionerFhirClientService;
+import nl.koppeltaal.poc.fhir.service.*;
 import nl.koppeltaal.poc.utils.UrlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.RelatedPerson;
 import org.junit.Assert;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,11 +37,13 @@ public class LoginController {
 	final Oauth2ClientService oauth2ClientService;
 	final PatientFhirClientService patientFhirClientService;
 	final PractitionerFhirClientService practitionerFhirClientService;
+	final RelatedPersonFhirClientService relatedPersonFhirClientService;
 
-	public LoginController(Oauth2ClientService oauth2ClientService, PatientFhirClientService patientFhirClientService, PractitionerFhirClientService practitionerFhirClientService) {
+	public LoginController(Oauth2ClientService oauth2ClientService, PatientFhirClientService patientFhirClientService, PractitionerFhirClientService practitionerFhirClientService, RelatedPersonFhirClientService relatedPersonFhirClientService) {
 		this.oauth2ClientService = oauth2ClientService;
 		this.patientFhirClientService = patientFhirClientService;
 		this.practitionerFhirClientService = practitionerFhirClientService;
+		this.relatedPersonFhirClientService = relatedPersonFhirClientService;
 	}
 
 	@RequestMapping("code_response")
@@ -65,6 +66,9 @@ public class LoginController {
 			return "redirect:patient/index.html";
 		} else if (StringUtils.startsWith(userReference, "RelatedPerson")) {
 			// TODO:
+			RelatedPerson relatedPerson = relatedPersonFhirClientService.getResourceByReference(tokenStorage, userReference);
+			httpSession.setAttribute("user", relatedPerson);
+			return "redirect:relatedperson/index.html";
 		}
 
 

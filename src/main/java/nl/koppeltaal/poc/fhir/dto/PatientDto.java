@@ -12,7 +12,7 @@ package nl.koppeltaal.poc.fhir.dto;
  *
  */
 @SuppressWarnings("unused")
-public class PatientDto extends PersonDto {
+public class PatientDto extends OrgPersonDto {
 	String workEmail;
 	String homeEmail;
 

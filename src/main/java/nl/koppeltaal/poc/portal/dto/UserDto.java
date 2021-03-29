@@ -19,9 +19,14 @@ public class UserDto {
 	private String nameGiven;
 	private String nameFamily;
 	private boolean loggedIn;
+	private String userIdentifier;
 
 	public boolean getLoggedIn() {
 		return loggedIn;
+	}
+
+	public String getUserIdentifier() {
+		return userIdentifier;
 	}
 
 	public void setLoggedIn(boolean loggedIn) {
@@ -58,5 +63,9 @@ public class UserDto {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public void setUserIdentifier(String userIdentifier) {
+		this.userIdentifier = userIdentifier;
 	}
 }

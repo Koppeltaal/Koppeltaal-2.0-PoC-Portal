@@ -40,8 +40,7 @@ const formToJson = (form) => {
 
 let parseHtml = function (html) {
   let document1 = parser.parseFromString(html, 'text/html');
-  let element = document1.body.firstElementChild;
-  return element;
+  return document1.body.firstElementChild;
 };
 
 function show(selector) {
@@ -87,8 +86,7 @@ let clearForm = function (form) {
 };
 const registerFormSubmitListeners = (callback) => {
   const formElements = document.getElementsByTagName('form');
-  for (const i in formElements) {
-    const form = formElements[i];
+  for (const form of formElements) {
     form.onsubmit = (e) => {
       const form = e.target;
       fetch(form.getAttribute('action'), {
@@ -135,10 +133,11 @@ const createTd = (...args) => {
 }
 
 const formatPlainText = (text) => {
-  var rv = '<p>'
-  paras = text.split('\n')
-  for (var i in paras) {
-    rv += paras[i] || '&nbsp;';
+  text = text || '';
+  let rv = '<p>'
+  const params = text.split('\n')
+  for (const param of params) {
+    rv += param || '&nbsp;';
     rv += '</p><p>'
   }
   return rv + '</p>'

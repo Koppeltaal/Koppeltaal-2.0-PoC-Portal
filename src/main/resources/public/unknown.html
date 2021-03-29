@@ -54,7 +54,7 @@
         currentUser = user;
       } else {
         show('.loggedout')
-        delete currentUser;
+        currentUser = null;
       }
       if (currentUser) {
         document.querySelector('.user').textContent = currentUser.userId;

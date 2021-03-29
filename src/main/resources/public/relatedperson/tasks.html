@@ -8,7 +8,7 @@
 
 <html lang="en">
 <head>
-    <title>Het Portaal - patient</title>
+    <title>Het Portaal - tasks</title>
     <link rel="icon" type="image/svg+xml" href="../icons/public-24px.svg">
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -19,53 +19,21 @@
 </head>
 <body>
 
-<nav class="nav-extended cyan darken-1">
+<nav class="nav-extended deep-orange darken-1">
     <div class="nav-wrapper ">
         &nbsp; <a href="#" class="brand-logo">Het Portaal <i class="large material-icons">public</i></a>
         <ul id="nav-mobile" class="right">
             <li><a href="/logout">Logout</a></li>
         </ul>
     </div>
-    <div class="nav-content loggedin cyan lighten-3">
+    <div class="nav-content loggedin deep-orange lighten-3">
         <ul class="tabs tabs-transparent">
             <li class="tab"><a href="index.html">Main</a></li>
-            <li class="tab"><a href="patients.html" class="active">Patients</a></li>
+            <li class="tab"><a href="tasks.html" class="active">Tasks</a></li>
         </ul>
     </div>
 </nav>
 <div class="container">
-    <div class="row">
-        <div class="col s12 m12">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">
-                        <span class="patient_nameGiven"></span>
-                        <span class="patient_nameFamily"></span>
-                    </span>
-                    <table>
-                        <tbody>
-                        <tr>
-                            <td>Gender</td>
-                            <td><span class="patient_gender"></span></td>
-                        </tr>
-                        <tr>
-                            <td>Date of birth</td>
-                            <td><span class="patient_birthDate"></span></td>
-                        </tr>
-                        <tr>
-                            <td>Work email</td>
-                            <td><span class="patient_workEmail"></span></td>
-                        </tr>
-                        <tr>
-                            <td>Home email</td>
-                            <td><span class="patient_homeEmail"></span></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="content-tab activitydefinitions">
         <div class="row">
             <div class="col s12">
@@ -101,6 +69,7 @@
                     <tr>
                         <th>Id</th>
                         <th>Activity Definition</th>
+                        <th>Practitioner</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -119,7 +88,7 @@
 <script type="text/javascript" src="../js/utils.js"></script>
 <script>
 
-  const renderActivityDefinitions = (patient) => {
+  const renderActivityDefinitions = (patient, practitioners) => {
     fetch('/api/ActivityDefinition/' + patient.reference)
       .then(jsonResponseHandler)
       .then((data) => {
@@ -129,14 +98,14 @@
           tdata.innerHTML = '';
           for (let activitydefinition of Object.values(data)) {
             const tr = document.createElement('tr');
-            tr.append(createTd(activitydefinition.name));
+            tr.append(createTd(activitydefinition.title));
             let td = document.createElement('td');
             let addAction = parseHtml('<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">add_box</i>add</a>')
             addAction.onclick = () => {
               fetch('/api/Task/' + activitydefinition.reference + "/" + patient.reference, {method: 'PUT'})
                 .then(jsonResponseHandler)
                 .then(() => {
-                  renderTasks(patient, activitydefinitions)
+                  renderTasks(patient, activitydefinitions, practitioners)
                 });
               return false;
             }
@@ -155,30 +124,41 @@
             activitydefinitions[activitydefinition.reference] = activitydefinition
           }
         }
-        renderTasks(patient, activitydefinitions);
+        renderTasks(patient, activitydefinitions, practitioners);
       });
 
   }
 
-  const renderTasks = (patient, activitydefinitions) => {
+  const renderPractitioners = (patient) => {
+    fetch('/api/Practitioner/')
+      .then(jsonResponseHandler)
+      .then((data) => {
+        const practitioners = {}
+        for (var practitioner of data) {
+          practitioners[practitioner.reference] = practitioner;
+        }
+        renderActivityDefinitions(patient, practitioners);
+      });
+  }
+
+  const renderTasks = (patient, activitydefinitions, practitioners) => {
     fetch('/api/Task/' + patient.reference)
       .then(jsonResponseHandler)
       .then((data) => {
-        for (var i in data) {
-          const tdata = document.querySelector('div.tasks table.data tbody');
-          tdata.innerHTML = '';
-          for (let task of Object.values(data)) {
-            if (isTaskActive(task)) {
-              const tr = document.createElement('tr');
-              tr.append(createTd(task.reference));
-              tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].name : ''));
-              tr.append(createTd(task.status));
-              let td = document.createElement('td');
-              let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
-              td.append(startAction);
-              tr.append(td);
-              tdata.append(tr);
-            }
+        const tdata = document.querySelector('div.tasks table.data tbody');
+        tdata.innerHTML = '';
+        for (let task of Object.values(data)) {
+          if (isTaskActive(task)) {
+            const tr = document.createElement('tr');
+            tr.append(createTd(task.reference));
+            tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
+            tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
+            tr.append(createTd(task.status));
+            let td = document.createElement('td');
+            let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>start</a>')
+            td.append(startAction);
+            tr.append(td);
+            tdata.append(tr);
           }
         }
       });
@@ -186,10 +166,10 @@
   }
 
   const render = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('patient')) {
-      const patient = urlParams.get('patient');
-      fetch('/api/' + patient)
+    const patient = currentUser.patient;
+    if (patient) {
+
+      fetch('/api/' + patient.reference)
         .then(jsonResponseHandler)
         .then((patient) => {
           for (let i of Object.keys(patient)) {
@@ -203,9 +183,12 @@
               }
             }
           }
-          renderActivityDefinitions(patient);
+          renderPractitioners(patient);
+
+
         });
     }
+
   }
   document.addEventListener('DOMContentLoaded', function () {
     fetch('/api/user/current')

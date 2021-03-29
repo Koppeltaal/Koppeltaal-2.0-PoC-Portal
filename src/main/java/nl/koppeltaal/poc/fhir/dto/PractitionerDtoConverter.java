@@ -144,7 +144,7 @@ public class PractitionerDtoConverter implements DtoConverter<PractitionerDto, P
 			Reference issuer = practitionerQualificationComponent.getIssuer();
 			if (issuer != null && StringUtils.equals("Organization", issuer.getType())) {
 				Identifier identifier = issuer.getIdentifier();
-				if (identifier != null) {
+				if (identifier != null && StringUtils.isNotEmpty(identifier.getSystem()) && StringUtils.isNotEmpty(identifier.getValue())) {
 					practitionerDto.setOrganization(String.format("%s|%s", identifier.getSystem(), identifier.getValue()));
 					break;
 				}

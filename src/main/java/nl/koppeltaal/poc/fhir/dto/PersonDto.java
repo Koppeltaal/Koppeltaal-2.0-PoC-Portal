@@ -19,7 +19,6 @@ public class PersonDto extends BaseIdentifierDto {
 	String nameGiven;
 	String gender;
 	Date birthDate;
-	String organization;
 
 	public Date getBirthDate() {
 		return birthDate == null ? null : new Date(birthDate.getTime());
@@ -51,14 +50,6 @@ public class PersonDto extends BaseIdentifierDto {
 
 	public void setNameGiven(String nameGiven) {
 		this.nameGiven = nameGiven;
-	}
-
-	public String getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(String organization) {
-		this.organization = organization;
 	}
 
 
