@@ -87,8 +87,9 @@ public class LoginController {
 	@SuppressWarnings("SameReturnValue")
 	@RequestMapping("/logout")
 	public String logout(HttpSession httpSession, RedirectAttributes redirectAttributes, HttpServletRequest request) {
-		httpSession.removeAttribute("credentials");
-		return "redirect:index.html";
+		SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
+		tokenStorage.clear();
+		return "redirect:/login";
 	}
 
 }
