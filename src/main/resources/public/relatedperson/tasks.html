@@ -102,7 +102,7 @@
             tr.append(createTd(activitydefinition.title));
             let td = document.createElement('td');
             /*
-            let addAction = parseHtml('<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">add_box</i>add</a>')
+            let addAction = parseHtml('<a target="_blank" href="#" class="btn-small waves-effect waves-light deep-orange"><i class="small material-icons left">add_box</i>add</a>')
             addAction.onclick = () => {
               fetch('/api/Task/' + activitydefinition.reference + "/" + patient.reference, {method: 'PUT'})
                 .then(jsonResponseHandler)
@@ -115,11 +115,11 @@
             td.append(' ');
             */
             /*
-            let startNewAction = parseHtml('<a target="_blank" href="/kt2/launch/' + activitydefinition.reference + '/' + patient.reference + '?new=true" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>add & open</a>')
+            let startNewAction = parseHtml('<a target="_blank" href="/kt2/launch/' + activitydefinition.reference + '/' + patient.reference + '?new=true" class="btn-small waves-effect waves-light deep-orange"><i class="small material-icons left">play_circle_outline</i>add & open</a>')
             td.append(startNewAction);
             td.append(' ');
             */
-            let viewAction = parseHtml('<a href="activitydefinition.html?activityDefinition=' + activitydefinition.reference + '&patient=' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">assignment</i>view</a>')
+            let viewAction = parseHtml('<a href="activitydefinition.html?activityDefinition=' + activitydefinition.reference + '&patient=' + patient.reference + '" class="btn-small waves-effect waves-light deep-orange"><i class="small material-icons left">assignment</i>view</a>')
             td.append(viewAction);
             tr.append(td);
             tdata.append(tr);
@@ -157,7 +157,7 @@
             tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
             tr.append(createTd(task.status));
             let td = document.createElement('td');
-            let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>open</a>')
+            let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="btn-small waves-effect waves-light deep-orange"><i class="small material-icons left">play_circle_outline</i>open</a>')
             td.append(startAction);
             tr.append(td);
             tdata.append(tr);

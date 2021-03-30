@@ -116,7 +116,7 @@
                     tr.append(createTd(task.reference));
                     tr.append(createTd(task.status));
                     let td = document.createElement('td');
-                    let startAction = parseHtml('<a href="task.html?reference=' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>open</a>')
+                    let startAction = parseHtml('<a href="task.html?reference=' + task.reference + '" class="btn-small waves-effect waves-light deep-orange"><i class="small material-icons left">play_circle_outline</i>open</a>')
                     td.append(startAction);
                     td.append(' ');
                     tr.append(td);

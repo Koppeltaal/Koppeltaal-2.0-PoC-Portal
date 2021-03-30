@@ -76,7 +76,7 @@
           tr.append(createTd(patient.nameGiven, patient.nameFamily));
           tr.append(createTd(patient.homeEmail, patient.workEmail));
           let td = document.createElement('td');
-          let viewAction = parseHtml('<a href="patient.html?patient=' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">accessibility</i>view</a>')
+          let viewAction = parseHtml('<a href="patient.html?patient=' + patient.reference + '" class="btn-small waves-effect waves-light cyan"><i class="small material-icons left">accessibility</i>view</a>')
           td.append(viewAction);
           tr.append(td);
           tdata.append(tr);
