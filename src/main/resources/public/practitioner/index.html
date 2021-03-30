@@ -37,7 +37,7 @@
 <div class="container content-tab main">
     <div class="row">
         <div class="col s12">
-            <h1>Welcome to the Practitioner portal</h1>
+            <h1>Welcome to the portal, Practitioner</h1>
             <p class="loggedin">Hello, <span class="user"></span></p>
             <p class="loggedin">Welcome to Het Portaal.</p>
         </div>
@@ -60,9 +60,7 @@
         show('.loggedout')
         currentUser = null;
       }
-      if (currentUser) {
-        document.querySelector('.user').textContent = currentUser.userIdentifier;
-      }
+      insertCurrentUser(currentUser);
     });
   }, false);
 </script>

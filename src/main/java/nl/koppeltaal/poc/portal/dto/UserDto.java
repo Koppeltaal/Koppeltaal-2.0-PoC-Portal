@@ -20,9 +20,14 @@ public class UserDto {
 	private String nameFamily;
 	private boolean loggedIn;
 	private String userIdentifier;
+	private String type;
 
 	public boolean getLoggedIn() {
 		return loggedIn;
+	}
+
+	public String getType() {
+		return type;
 	}
 
 	public String getUserIdentifier() {
@@ -59,6 +64,10 @@ public class UserDto {
 
 	public String getUserId() {
 		return userId;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public void setUserId(String userId) {

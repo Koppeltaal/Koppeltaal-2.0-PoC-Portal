@@ -79,7 +79,7 @@ let clearForm = function (form) {
     form = form.form
   }
   form.reset()
-  form.querySelectorAll("input[type='hidden']").forEach((el)=>{
+  form.querySelectorAll("input[type='hidden']").forEach((el) => {
     el.value = '';
   });
   updateForm();
@@ -146,3 +146,11 @@ const formatPlainText = (text) => {
 const isTaskActive = function (task) {
   return task.status !== 'completed' && task.status !== 'failed' && task.status !== 'cancelled';
 };
+
+const insertCurrentUser = (currentUser) => {
+  if (currentUser) {
+    document.querySelectorAll('.user').forEach((el) => {
+      el.textContent = currentUser.userIdentifier + ' (' + currentUser.type + ')';
+    });
+  }
+}

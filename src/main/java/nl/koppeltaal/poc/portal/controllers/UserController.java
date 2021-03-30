@@ -57,22 +57,27 @@ public class UserController {
 			rv.setLoggedIn(false);
 		}
 
-		Object user = httpSession.getAttribute("user");
-		if (user instanceof Patient) {
-			PatientDto dto = patientDtoConverter.convert((Patient) user);
-			rv.setPatient(dto);
-			rv.setNameGiven(dto.getNameGiven());
-			rv.setNameFamily(dto.getNameFamily());
-		} else if (user instanceof Practitioner) {
-			PractitionerDto dto = practitionerDtoConverter.convert((Practitioner) user);
-			rv.setNameGiven(dto.getNameGiven());
-			rv.setNameFamily(dto.getNameFamily());
-		} else if (user instanceof RelatedPerson) {
-			RelatedPersonDto dto = relatedPersonDtoConverter.convert((RelatedPerson) user);
-			String patient = dto.getPatient();
-			rv.setPatient(patientDtoConverter.convert(patientFhirClientService.getResourceByReference(tokenStorage, patient)));
-			rv.setNameGiven(dto.getNameGiven());
-			rv.setNameFamily(dto.getNameFamily());
+		if (rv.getLoggedIn()) {
+			Object user = httpSession.getAttribute("user");
+			if (user instanceof Patient) {
+				PatientDto dto = patientDtoConverter.convert((Patient) user);
+				rv.setPatient(dto);
+				rv.setType("Patient");
+				rv.setNameGiven(dto.getNameGiven());
+				rv.setNameFamily(dto.getNameFamily());
+			} else if (user instanceof Practitioner) {
+				PractitionerDto dto = practitionerDtoConverter.convert((Practitioner) user);
+				rv.setNameGiven(dto.getNameGiven());
+				rv.setType("Practitioner");
+				rv.setNameFamily(dto.getNameFamily());
+			} else if (user instanceof RelatedPerson) {
+				RelatedPersonDto dto = relatedPersonDtoConverter.convert((RelatedPerson) user);
+				String patient = dto.getPatient();
+				rv.setType("RelatedPerson");
+				rv.setPatient(patientDtoConverter.convert(patientFhirClientService.getResourceByReference(tokenStorage, patient)));
+				rv.setNameGiven(dto.getNameGiven());
+				rv.setNameFamily(dto.getNameFamily());
+			}
 		}
 		return rv;
 	}
