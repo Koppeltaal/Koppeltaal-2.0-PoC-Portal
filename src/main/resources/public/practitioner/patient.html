@@ -130,7 +130,7 @@
           tdata.innerHTML = '';
           for (let activitydefinition of Object.values(data)) {
             const tr = document.createElement('tr');
-            tr.append(createTd(activitydefinition.name));
+            tr.append(createTd(activitydefinition.title));
             let td = document.createElement('td');
             let addAction = parseHtml('<a target="_blank" href="#" class="btn-small waves-effect waves-light cyan"><i class="small material-icons left">add_box</i>add</a>')
             addAction.onclick = () => {
@@ -172,7 +172,7 @@
             if (isTaskActive(task)) {
               const tr = document.createElement('tr');
               tr.append(createTd(task.reference));
-              tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].name : ''));
+              tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
               tr.append(createTd(task.status));
               let td = document.createElement('td');
               let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="btn-small waves-effect waves-light cyan"><i class="small material-icons left">play_circle_outline</i>open</a>')
