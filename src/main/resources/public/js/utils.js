@@ -144,7 +144,10 @@ const formatPlainText = (text) => {
 }
 
 const isTaskActive = function (task) {
-  return task.status !== 'completed' && task.status !== 'failed' && task.status !== 'cancelled';
+  return task.status !== 'completed'
+    && task.status !== 'failed'
+    && task.status !== 'cancelled'
+    && task.status !== 'rejected';
 };
 
 const insertCurrentUser = (currentUser) => {

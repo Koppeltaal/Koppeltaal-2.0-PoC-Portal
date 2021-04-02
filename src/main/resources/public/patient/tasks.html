@@ -39,7 +39,7 @@
     <div class="content-tab activitydefinitions">
         <div class="row">
             <div class="col s12">
-                <h1>Available Activities</h1>
+                <h2>Available Activities</h2>
             </div>
         </div>
         <div class="row">
@@ -58,10 +58,35 @@
             </div>
         </div>
     </div>
-    <div class="content-tab tasks">
+    <div class="content-tab active_tasks">
         <div class="row">
             <div class="col s12">
-                <h1>Active tasks</h1>
+                <h2>Active tasks</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <table class="data">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Activity Definition</th>
+                        <th>Practitioner</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="content-tab finished_tasks">
+        <div class="row">
+            <div class="col s12">
+                <h2>Finished tasks</h2>
             </div>
         </div>
         <div class="row">
@@ -147,20 +172,24 @@
     fetch('/api/Task/' + patient.reference)
       .then(jsonResponseHandler)
       .then((data) => {
-        const tdata = document.querySelector('div.tasks table.data tbody');
-        tdata.innerHTML = '';
+        const tdata_active = document.querySelector('div.active_tasks table.data tbody');
+        const tdata_finished = document.querySelector('div.finished_tasks table.data tbody');
+        tdata_active.innerHTML = '';
+        tdata_finished.innerHTML = '';
         for (let task of Object.values(data)) {
+          const tr = document.createElement('tr');
+          tr.append(createTd(task.reference));
+          tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
+          tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
+          tr.append(createTd(task.status));
+          let td = document.createElement('td');
+          let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>open</a>')
+          td.append(startAction);
+          tr.append(td);
           if (isTaskActive(task)) {
-            const tr = document.createElement('tr');
-            tr.append(createTd(task.reference));
-            tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
-            tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
-            tr.append(createTd(task.status));
-            let td = document.createElement('td');
-            let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>open</a>')
-            td.append(startAction);
-            tr.append(td);
-            tdata.append(tr);
+            tdata_active.append(tr);
+          } else {
+            tdata_finished.append(tr);
           }
         }
       });
