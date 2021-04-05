@@ -157,3 +157,10 @@ const insertCurrentUser = (currentUser) => {
     });
   }
 }
+
+const nameFromPatient = (patient) => {
+  if (patient && patient.name.length > 0) {
+    return (patient.name[0].given).join(' ') + ' ' + patient.name[0].family;
+  }
+  return '';
+}

@@ -35,32 +35,10 @@
     </div>
 </nav>
 <div class="container">
-    <div class="content-tab activitydefinitions">
-        <div class="row">
-            <div class="col s12">
-                <h2>Available Activities</h2>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12">
-                <table class="data">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
     <div class="content-tab tasks">
         <div class="row">
             <div class="col s12">
-                <h2>Active tasks</h2>
+                <h2>Current tasks for <span class="patientName"></span></h2>
             </div>
         </div>
         <div class="row">
@@ -94,41 +72,11 @@
       .then(jsonResponseHandler)
       .then((data) => {
         const activitydefinitions = {};
-        for (var i in data) {
-          const tdata = document.querySelector('div.activitydefinitions table.data tbody');
-          tdata.innerHTML = '';
-          for (let activitydefinition of Object.values(data)) {
-            const tr = document.createElement('tr');
-            tr.append(createTd(activitydefinition.title));
-            let td = document.createElement('td');
-            /*
-            let addAction = parseHtml('<a target="_blank" href="#" class="btn-small waves-effect waves-light deep-orange"><i class="small material-icons left">add_box</i>add</a>')
-            addAction.onclick = () => {
-              fetch('/api/Task/' + activitydefinition.reference + "/" + patient.reference, {method: 'PUT'})
-                .then(jsonResponseHandler)
-                .then(() => {
-                  renderTasks(patient, activitydefinitions, practitioners)
-                });
-              return false;
-            }
-            td.append(addAction);
-            td.append(' ');
-            */
-            /*
-            let startNewAction = parseHtml('<a target="_blank" href="/kt2/launch/' + activitydefinition.reference + '/' + patient.reference + '?new=true" class="btn-small waves-effect waves-light deep-orange"><i class="small material-icons left">play_circle_outline</i>add & open</a>')
-            td.append(startNewAction);
-            td.append(' ');
-            */
-            let viewAction = parseHtml('<a href="activitydefinition.html?activityDefinition=' + activitydefinition.reference + '&patient=' + patient.reference + '" class="btn-small waves-effect waves-light deep-orange"><i class="small material-icons left">assignment</i>view</a>')
-            td.append(viewAction);
-            tr.append(td);
-            tdata.append(tr);
-            activitydefinitions[activitydefinition.reference] = activitydefinition
-          }
+        for (let activitydefinition of Object.values(data)) {
+          activitydefinitions[activitydefinition.reference] = activitydefinition
         }
         renderTasks(patient, activitydefinitions, practitioners);
-      });
-
+      })
   }
 
   const renderPractitioners = (patient) => {
@@ -186,8 +134,6 @@
             }
           }
           renderPractitioners(patient);
-
-
         });
     }
 
@@ -203,6 +149,7 @@
           registerFormSubmitListeners(render);
           enableMaterializeElements();
           insertCurrentUser(currentUser);
+          document.querySelector('.patientName').textContent = nameFromPatient(currentUser.patient)
         } else {
           let res = window.confirm("It seems you are logged out, go to the login page?")
           if (res) {
