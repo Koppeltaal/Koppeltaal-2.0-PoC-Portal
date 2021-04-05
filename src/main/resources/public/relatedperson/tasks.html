@@ -38,7 +38,7 @@
     <div class="content-tab tasks">
         <div class="row">
             <div class="col s12">
-                <h2>Current tasks for <span class="patientName"></span></h2>
+                <h2 class="patientName">Current tasks</h2>
             </div>
         </div>
         <div class="row">
@@ -151,7 +151,7 @@
           insertCurrentUser(currentUser);
           let patient = currentUser.patient
           if (patient) {
-            document.querySelector('.patientName').textContent = (patient.nameGiven || '') + ' ' + (patient.nameFamily || '');
+            document.querySelector('.patientName').textContent = 'Current tasks for ' + (patient.nameGiven || '') + ' ' + (patient.nameFamily || '');
           }
         } else {
           let res = window.confirm("It seems you are logged out, go to the login page?")
