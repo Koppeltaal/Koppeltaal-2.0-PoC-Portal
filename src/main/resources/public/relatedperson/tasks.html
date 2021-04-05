@@ -149,7 +149,10 @@
           registerFormSubmitListeners(render);
           enableMaterializeElements();
           insertCurrentUser(currentUser);
-          document.querySelector('.patientName').textContent = nameFromPatient(currentUser.patient)
+          let patient = currentUser.patient
+          if (patient) {
+            document.querySelector('.patientName').textContent = (patient.nameGiven || '') + ' ' + (patient.nameFamily || '');
+          }
         } else {
           let res = window.confirm("It seems you are logged out, go to the login page?")
           if (res) {
