@@ -49,11 +49,11 @@ public class Kt20LaunchController {
 		}
 		LaunchData launchData = new LaunchData("index.html", "", true);
 		if (practitioner != null) {
-			launchData = kt20LaunchService.launchTaskPractitioner(tokenStorage, practitioner, taskId);
+			launchData = kt20LaunchService.launchTaskPractitioner(practitioner, taskId);
 		} else if (relatedPerson != null) {
 			launchData = kt20LaunchService.launchTaskRelatedPerson(tokenStorage, relatedPerson, taskId);
 		} else if (patient != null) {
-			launchData = kt20LaunchService.launchTaskPatient(tokenStorage, patient, taskId);
+			launchData = kt20LaunchService.launchTaskPatient(patient, taskId);
 		}
 		return renderLaunchData(launchData);
 	}
@@ -76,15 +76,15 @@ public class Kt20LaunchController {
 		}
 
 		if (patient == null && StringUtils.isNotEmpty(patientId)) {
-			patient = patientFhirClientService.getResourceByReference(tokenStorage, patientId);
+			patient = patientFhirClientService.getResourceByReference(patientId);
 		}
 		LaunchData launchData = new LaunchData("index.html", "", true);
 		if (practitioner != null && patient != null) {
-			launchData = kt20LaunchService.launchPractitioner(tokenStorage, practitioner, patient, treatmentId, isNew);
+			launchData = kt20LaunchService.launchPractitioner(practitioner, patient, treatmentId, isNew);
 		} else if (relatedPerson != null && patient != null) {
-			launchData = kt20LaunchService.launchRelatedPerson(tokenStorage, relatedPerson, patient, treatmentId, isNew);
+			launchData = kt20LaunchService.launchRelatedPerson(relatedPerson, patient, treatmentId, isNew);
 		} else if (patient != null) {
-			launchData = kt20LaunchService.launchPatient(tokenStorage, patient,  treatmentId, isNew);
+			launchData = kt20LaunchService.launchPatient(patient,  treatmentId, isNew);
 		}
 		return renderLaunchData(launchData);
 	}

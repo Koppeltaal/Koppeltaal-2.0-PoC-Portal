@@ -32,8 +32,7 @@ public class FhirCapabilitiesService {
 		this.fhirClientConfiguration = fhirClientConfiguration;
 	}
 
-	public OAuth2Urls getOAuth2Urls() {
-		OAuth2Urls oAuth2Urls = new OAuth2Urls();
+	public String getTokenUrl() {
 		IGenericClient client = fhirContext.newRestfulGenericClient(fhirClientConfiguration.getServerUrl());
 		IFetchConformanceUntyped capabilities = client.capabilities();
 		IFetchConformanceTyped<CapabilityStatement> conformanceTyped = capabilities.ofType(CapabilityStatement.class);
@@ -44,36 +43,11 @@ public class FhirCapabilitiesService {
 			for (Extension extension : extensionsByUrl) {
 				Extension token = extension.getExtensionByUrl("token");
 				if (token != null) {
-					oAuth2Urls.setTokenUrl(token.getValue().primitiveValue());
-				}
-				Extension authorize = extension.getExtensionByUrl("authorize");
-				if (authorize != null) {
-					oAuth2Urls.setAuthorizeUrl(authorize.getValue().primitiveValue());
+					return token.getValue().primitiveValue();
 				}
 
 			}
 		}
-		return oAuth2Urls;
-	}
-
-	public static class OAuth2Urls {
-		String tokenUrl;
-		String authorizeUrl;
-
-		public String getAuthorizeUrl() {
-			return authorizeUrl;
-		}
-
-		public void setAuthorizeUrl(String authorizeUrl) {
-			this.authorizeUrl = authorizeUrl;
-		}
-
-		public String getTokenUrl() {
-			return tokenUrl;
-		}
-
-		public void setTokenUrl(String tokenUrl) {
-			this.tokenUrl = tokenUrl;
-		}
+		return null;
 	}
 }

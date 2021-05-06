@@ -50,15 +50,13 @@ public class TasksController extends BaseResourceController<TaskDto, Task> {
 		Task task = new Task();
 		if (user instanceof Practitioner) {
 			Practitioner practitioner = (Practitioner) user;
-			SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
-			Patient patient = patientFhirClientService.getResourceByReference(tokenStorage, "Patient/" + patientId);
-			ActivityDefinition activityDefinition = activityDefinitionFhirClientService.getResourceByReference(tokenStorage, "ActivityDefinition/" + activityDefinitionId);
-			task = fhirClientService.getOrCreateTask(tokenStorage, patient, practitioner, activityDefinition, true);
+			Patient patient = patientFhirClientService.getResourceByReference("Patient/" + patientId);
+			ActivityDefinition activityDefinition = activityDefinitionFhirClientService.getResourceByReference("ActivityDefinition/" + activityDefinitionId);
+			task = fhirClientService.getOrCreateTask(patient, practitioner, activityDefinition, true);
 		} else if (user instanceof Patient) {
 			Patient patient = (Patient) user;
-			SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
-			ActivityDefinition activityDefinition = activityDefinitionFhirClientService.getResourceByReference(tokenStorage, "ActivityDefinition/" + activityDefinitionId);
-			task = fhirClientService.getOrCreateTask(tokenStorage, patient, null, activityDefinition, true);
+			ActivityDefinition activityDefinition = activityDefinitionFhirClientService.getResourceByReference("ActivityDefinition/" + activityDefinitionId);
+			task = fhirClientService.getOrCreateTask(patient, null, activityDefinition, true);
 		}
 		return dtoConverter.convert(task);
 	}
@@ -67,7 +65,7 @@ public class TasksController extends BaseResourceController<TaskDto, Task> {
 	@RequestMapping(value = "Patient/{patientId}", method = RequestMethod.GET)
 	public List<TaskDto> getForActivityDefinition(HttpSession httpSession, @PathVariable String patientId) throws IOException, JwkException {
 		List<TaskDto> rv = new ArrayList<>();
-		List<Task> list = fhirClientService.getResourcesByOwner(new SessionTokenStorage(httpSession), "Patient/" + patientId);
+		List<Task> list = fhirClientService.getResourcesByOwner("Patient/" + patientId);
 		for (Task task : list) {
 			rv.add(dtoConverter.convert(task));
 		}

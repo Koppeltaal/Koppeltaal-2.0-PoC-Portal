@@ -15,7 +15,6 @@ import nl.koppeltaal.poc.fhir.service.ActivityDefinitionFhirClientService;
 import org.hl7.fhir.r4.model.ActivityDefinition;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +36,9 @@ public class ActivityDefinitionController extends BaseResourceController<Activit
 	}
 
 	@RequestMapping(value = "Patient/{patientId}", method = RequestMethod.GET)
-	public List<ActivityDefinitionDto> getForPatients(HttpSession httpSession, @PathVariable String patientId) throws IOException, JwkException {
+	public List<ActivityDefinitionDto> getForPatients(@PathVariable String patientId) throws IOException, JwkException {
 		List<ActivityDefinitionDto> rv = new ArrayList<>();
-		List<ActivityDefinition> resources = fhirClientService.getResourcesForPatient(new SessionTokenStorage(httpSession), "Patient/" + patientId);
+		List<ActivityDefinition> resources = fhirClientService.getResourcesForPatient("Patient/" + patientId);
 		for (ActivityDefinition resource : resources) {
 			rv.add(dtoConverter.convert(resource));
 		}

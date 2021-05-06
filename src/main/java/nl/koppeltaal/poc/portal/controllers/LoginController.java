@@ -11,6 +11,7 @@ package nl.koppeltaal.poc.portal.controllers;
 import com.auth0.jwk.JwkException;
 import nl.koppeltaal.poc.fhir.dto.AuthorizationUrlDto;
 import nl.koppeltaal.poc.fhir.service.*;
+import nl.koppeltaal.poc.oidc.service.OidcClientService;
 import nl.koppeltaal.poc.utils.UrlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
@@ -34,13 +35,13 @@ import java.io.IOException;
 
 public class LoginController {
 
-	final Oauth2ClientService oauth2ClientService;
+	final OidcClientService oidcClientService;
 	final PatientFhirClientService patientFhirClientService;
 	final PractitionerFhirClientService practitionerFhirClientService;
 	final RelatedPersonFhirClientService relatedPersonFhirClientService;
 
-	public LoginController(Oauth2ClientService oauth2ClientService, PatientFhirClientService patientFhirClientService, PractitionerFhirClientService practitionerFhirClientService, RelatedPersonFhirClientService relatedPersonFhirClientService) {
-		this.oauth2ClientService = oauth2ClientService;
+	public LoginController(OidcClientService oidcClientService, PatientFhirClientService patientFhirClientService, PractitionerFhirClientService practitionerFhirClientService, RelatedPersonFhirClientService relatedPersonFhirClientService) {
+		this.oidcClientService = oidcClientService;
 		this.patientFhirClientService = patientFhirClientService;
 		this.practitionerFhirClientService = practitionerFhirClientService;
 		this.relatedPersonFhirClientService = relatedPersonFhirClientService;
@@ -53,20 +54,20 @@ public class LoginController {
 
 
 
-		oauth2ClientService.getToken(code, UrlUtils.getServerUrl("/code_response", request), tokenStorage);
+		oidcClientService.getIdToken(code, UrlUtils.getServerUrl("/code_response", request), tokenStorage);
 
-		String userReference = oauth2ClientService.getUserIdFromCredentials(tokenStorage);
-		if (StringUtils.startsWith(userReference, "Practitioner")) {
-			Practitioner practitioner = practitionerFhirClientService.getResourceByReference(tokenStorage, userReference);
+		String userReference = oidcClientService.getUserIdFromCredentials(tokenStorage);
+		Practitioner practitioner = practitionerFhirClientService.getResourceByIdentifier(userReference);
+		Patient patient = patientFhirClientService.getResourceByIdentifier(userReference);
+		RelatedPerson relatedPerson = relatedPersonFhirClientService.getResourceByIdentifier(userReference);
+
+		if (practitioner != null) {
 			httpSession.setAttribute("user", practitioner);
 			return "redirect:practitioner/index.html";
-		} else if (StringUtils.startsWith(userReference, "Patient")) {
-			Patient patient = patientFhirClientService.getResourceByReference(tokenStorage, userReference);
+		} else if (patient != null) {
 			httpSession.setAttribute("user", patient);
 			return "redirect:patient/index.html";
-		} else if (StringUtils.startsWith(userReference, "RelatedPerson")) {
-			// TODO:
-			RelatedPerson relatedPerson = relatedPersonFhirClientService.getResourceByReference(tokenStorage, userReference);
+		} else if (relatedPerson != null) {
 			httpSession.setAttribute("user", relatedPerson);
 			return "redirect:relatedperson/index.html";
 		}
@@ -78,7 +79,7 @@ public class LoginController {
 
 	@RequestMapping("/login")
 	public View login(HttpSession httpSession, RedirectAttributes redirectAttributes, HttpServletRequest request) {
-		AuthorizationUrlDto authorizationUrl = oauth2ClientService.getAuthorizationUrl(UrlUtils.getServerUrl("", request), UrlUtils.getServerUrl("/code_response", request));
+		AuthorizationUrlDto authorizationUrl = oidcClientService.getAuthorizationUrl(UrlUtils.getServerUrl("", request), UrlUtils.getServerUrl("/code_response", request));
 		httpSession.setAttribute("state", authorizationUrl.getState());
 		redirectAttributes.addAllAttributes(authorizationUrl.getParameters());
 		return new RedirectView(authorizationUrl.getUrl());

@@ -30,12 +30,12 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 
 	@RequestMapping(value = "{reference}", method = RequestMethod.DELETE)
 	public void delete(HttpSession httpSession, @PathVariable String reference) throws IOException, JwkException {
-		fhirClientService.deleteResourceByReference(new SessionTokenStorage(httpSession), reference);
+		fhirClientService.deleteResourceByReference(reference);
 	}
 
 	@RequestMapping(value = "{reference}", method = RequestMethod.GET)
 	public Dto get(HttpSession httpSession, @PathVariable String reference) throws IOException, JwkException {
-		Resource resource = fhirClientService.getResourceByReference(new SessionTokenStorage(httpSession), reference);
+		Resource resource = fhirClientService.getResourceByReference(reference);
 		if (resource != null) {
 			return dtoConverter.convert(resource);
 		} else {
@@ -46,7 +46,7 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 	@RequestMapping(method = RequestMethod.GET)
 	public List<Dto> list(HttpSession httpSession) throws IOException, JwkException {
 		List<Dto> rv = new ArrayList<>();
-		List<Resource> resources = fhirClientService.getResources(new SessionTokenStorage(httpSession));
+		List<Resource> resources = fhirClientService.getResources();
 		for (Resource resource : resources) {
 			rv.add(dtoConverter.convert(resource));
 		}
@@ -55,7 +55,7 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 
 	@RequestMapping(method = RequestMethod.PUT)
 	public Dto put(HttpSession httpSession, HttpServletRequest request, @RequestBody Dto dto) throws IOException, JwkException {
-		return dtoConverter.convert(fhirClientService.storeResource(new SessionTokenStorage(httpSession), UrlUtils.getServerUrl("", request), dtoConverter.convert(dto)));
+		return dtoConverter.convert(fhirClientService.storeResource(UrlUtils.getServerUrl("", request), dtoConverter.convert(dto)));
 	}
 
 }

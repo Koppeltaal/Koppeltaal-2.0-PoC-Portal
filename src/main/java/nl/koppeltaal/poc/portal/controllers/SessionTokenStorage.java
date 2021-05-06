@@ -8,7 +8,7 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
-import nl.koppeltaal.poc.generic.Oauth2TokenResponse;
+import nl.koppeltaal.poc.generic.IdTokenResponse;
 import nl.koppeltaal.poc.generic.TokenStorage;
 
 import javax.servlet.http.HttpSession;
@@ -25,20 +25,20 @@ public class SessionTokenStorage implements TokenStorage {
 
 	@Override
 	public void clear() {
-		httpSession.removeAttribute("credentials");
+		httpSession.removeAttribute("id_token");
 	}
 
 	@Override
-	public Oauth2TokenResponse getToken() {
-		return (Oauth2TokenResponse) httpSession.getAttribute("credentials");
+	public IdTokenResponse getIdToken() {
+		return (IdTokenResponse) httpSession.getAttribute("id_token");
 	}
 
-	public boolean hasToken() {
-		return httpSession.getAttribute("credentials") != null;
+	public boolean hasIdToken() {
+		return httpSession.getAttribute("id_token") != null;
 	}
 
 	@Override
-	public void updateToken(Oauth2TokenResponse token) {
-		httpSession.setAttribute("credentials", token);
+	public void updateToken(IdTokenResponse token) {
+		httpSession.setAttribute("id_token", token);
 	}
 }

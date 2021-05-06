@@ -28,7 +28,7 @@ public class IndexController {
 		} else if (httpSession.getAttribute("user") instanceof Practitioner) {
 			return "practitioner/index.html";
 		}
-		if (!tokenStorage.hasToken()) {
+		if (!tokenStorage.hasIdToken()) {
 			return "redirect:/login";
 		}
 		return "unknown.html";

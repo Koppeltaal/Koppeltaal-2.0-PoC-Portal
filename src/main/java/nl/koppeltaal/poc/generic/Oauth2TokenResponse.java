@@ -8,12 +8,10 @@ import java.io.Serializable;
  *
  */
 public class Oauth2TokenResponse implements Serializable {
-	@JsonProperty("access_token")
+	@JsonProperty(value = "access_token")
 	String accessToken;
 	@JsonProperty("refresh_token")
 	String refreshToken;
-	@JsonProperty("id_token")
-	String idToken;
 	@JsonProperty("token_type")
 	String tokenType;
 	@JsonProperty("expires_in")
@@ -33,14 +31,6 @@ public class Oauth2TokenResponse implements Serializable {
 
 	public void setExpiresIn(String expiresIn) {
 		this.expiresIn = expiresIn;
-	}
-
-	public String getIdToken() {
-		return idToken;
-	}
-
-	public void setIdToken(String idToken) {
-		this.idToken = idToken;
 	}
 
 	public String getRefreshToken() {

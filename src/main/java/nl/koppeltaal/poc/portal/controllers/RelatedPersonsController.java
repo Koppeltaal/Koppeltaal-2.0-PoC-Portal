@@ -8,6 +8,8 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
+import ca.uhn.fhir.rest.gclient.ICriterion;
+import ca.uhn.fhir.rest.gclient.ReferenceClientParam;
 import com.auth0.jwk.JwkException;
 import nl.koppeltaal.poc.fhir.dto.*;
 import nl.koppeltaal.poc.fhir.service.RelatedPersonFhirClientService;
@@ -50,7 +52,8 @@ public class RelatedPersonsController extends BaseResourceController<RelatedPers
 			Patient patient = (Patient) user;
 			PatientDto patientDto = patientDtoConverter.convert(patient);
 
-			List<RelatedPerson> relatedPersons = fhirClientService.getResourcesWithAttribute(new SessionTokenStorage(httpSession), "patient", patientDto.getReference());
+			ICriterion<ReferenceClientParam> criterion = RelatedPerson.PATIENT.hasId(patientDto.getReference());
+			List<RelatedPerson> relatedPersons = fhirClientService.getResources( criterion);
 			for (RelatedPerson relatedPerson : relatedPersons) {
 				rv.add(dtoConverter.convert(relatedPerson));
 			}

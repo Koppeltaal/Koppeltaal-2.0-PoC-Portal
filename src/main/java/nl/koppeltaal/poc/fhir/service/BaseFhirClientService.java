@@ -18,8 +18,6 @@ import com.auth0.jwk.JwkException;
 import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
 import nl.koppeltaal.poc.fhir.dto.BaseDto;
 import nl.koppeltaal.poc.fhir.dto.DtoConverter;
-import nl.koppeltaal.poc.generic.TokenStorage;
-import nl.koppeltaal.poc.portal.controllers.SessionTokenStorage;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
 
@@ -47,43 +45,43 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 		this.dtoConverter = dtoConverter;
 	}
 
-	public void deleteResource(TokenStorage sessionTokenStorage, String id) throws IOException, JwkException {
-		getFhirClient(sessionTokenStorage).delete().resourceById(getResourceName(), id).execute();
+	public void deleteResource(String id) throws IOException, JwkException {
+		getFhirClient().delete().resourceById(getResourceName(), id).execute();
 	}
 
-	public void deleteResourceByReference(TokenStorage sessionTokenStorage, String id) throws IOException, JwkException {
-		R resource = getResourceByReference(sessionTokenStorage, id);
+	public void deleteResourceByReference(String id) throws IOException, JwkException {
+		R resource = getResourceByReference(id);
 		if (resource != null) {
-			getFhirClient(sessionTokenStorage).delete().resource(resource).execute();
+			getFhirClient().delete().resource(resource).execute();
 		}
 	}
 
-	public R getResourceByReference(TokenStorage tokenStorage, String reference) throws IOException, JwkException {
-		return (R) getFhirClient(tokenStorage).read().resource(getResourceName()).withId(reference).execute();
+	public R getResourceByIdentifier(Identifier identifier) throws IOException, JwkException {
+		String system = StringUtils.isNotEmpty(identifier.getSystem()) ? identifier.getSystem() : getDefaultSystem();
+		return getResourceByIdentifier(system, identifier.getValue());
 	}
 
-	public R getResourceByReference(TokenStorage tokenStorage, Reference reference) throws IOException, JwkException {
+	public R getResourceByIdentifier(String identifierValue) throws IOException, JwkException {
+		return getResourceByIdentifier(identifierValue, getDefaultSystem());
+	}
+
+	public R getResourceByReference(String reference) throws IOException, JwkException {
+		return (R) getFhirClient().read().resource(getResourceName()).withId(reference).execute();
+	}
+
+	public R getResourceByReference(Reference reference) throws IOException, JwkException {
 		String ref = reference.getReference();
 		if (StringUtils.isNotEmpty(ref)) {
-			return getResourceByReference(tokenStorage, ref);
+			return getResourceByReference(ref);
 		} else if (reference.getIdentifier() != null) {
-			return getResourceByIdentifier(tokenStorage, reference.getIdentifier());
+			return getResourceByIdentifier(reference.getIdentifier());
 		}
 		return null;
 	}
 
-	public  R getResourceByIdentifier(TokenStorage tokenStorage, Identifier identifier) throws IOException, JwkException {
-		String system = StringUtils.isNotEmpty(identifier.getSystem()) ? identifier.getSystem() : getDefaultSystem();
-		return getResourceByIdentifier(tokenStorage, system, identifier.getValue());
-	}
-
-	public R getResourceByIdentifier(TokenStorage tokenStorage, String identifierValue) throws IOException, JwkException {
-		return getResourceByIdentifier(tokenStorage, identifierValue, getDefaultSystem());
-	}
-
-	public List<R> getResources(TokenStorage tokenStorage) throws JwkException, IOException {
+	public List<R> getResources() throws JwkException, IOException {
 		List<R> rv = new ArrayList<>();
-		Bundle bundle = getFhirClient(tokenStorage).search().forResource(getResourceName()).returnBundle(Bundle.class).execute();
+		Bundle bundle = getFhirClient().search().forResource(getResourceName()).returnBundle(Bundle.class).execute();
 		for (Bundle.BundleEntryComponent component : bundle.getEntry()) {
 			R resource = (R) component.getResource();
 			rv.add(resource);
@@ -91,13 +89,9 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 		return rv;
 	}
 
-	public List<R> getResourcesWithAttribute(SessionTokenStorage tokenStorage, String attribute, String id) throws IOException, JwkException {
+	public List<R> getResources(ICriterion<?> criterion) throws JwkException, IOException {
 		List<R> rv = new ArrayList<>();
-		ICriterion<TokenClientParam> criterion = new TokenClientParam(attribute).exactly().identifier(id);
-		Bundle bundle = getFhirClient(tokenStorage).search()
-				.forResource(getResourceName())
-				.where(criterion)
-				.returnBundle(Bundle.class).execute();
+		Bundle bundle = getFhirClient().search().forResource(getResourceName()).where(criterion).returnBundle(Bundle.class).execute();
 		for (Bundle.BundleEntryComponent component : bundle.getEntry()) {
 			R resource = (R) component.getResource();
 			rv.add(resource);
@@ -105,35 +99,35 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 		return rv;
 	}
 
-	public R storeResource(TokenStorage tokenStorage, String source, R resource) throws IOException, JwkException {
+	public R storeResource(String source, R resource) throws IOException, JwkException {
 		String identifier = getIdentifier(getDefaultSystem(), resource);
 		String id = getId(resource);
 		R res = null;
 		if (StringUtils.isNotEmpty(id)) {
-			res = getResourceByReference(tokenStorage, id);
+			res = getResourceByReference(id);
 		} else if (StringUtils.isNotEmpty(identifier)) {
-			res = getResourceByIdentifier(tokenStorage, identifier, getDefaultSystem());
+			res = getResourceByIdentifier(identifier, getDefaultSystem());
 		}
 
 
 		if (res != null) {
 			dtoConverter.applyDto(res, dtoConverter.convert(resource));
-			MethodOutcome execute = getFhirClient(tokenStorage).update().resource(res).execute();
+			MethodOutcome execute = getFhirClient().update().resource(res).execute();
 			return (R) execute.getResource();
 		}
 
 		updateMetaElement(source, resource);
-		MethodOutcome execute = getFhirClient(tokenStorage).create().resource(resource).execute();
+		MethodOutcome execute = getFhirClient().create().resource(resource).execute();
 		return (R) execute.getResource();
 	}
 
 	protected abstract String getDefaultSystem();
 
-	protected IGenericClient getFhirClient(TokenStorage tokenStorage) throws JwkException, IOException {
+	protected IGenericClient getFhirClient() throws JwkException, IOException {
 
 		IGenericClient iGenericClient = fhirContext.newRestfulGenericClient(fhirClientConfiguration.getServerUrl());
 
-		iGenericClient.registerInterceptor(new BearerTokenAuthInterceptor(oauth2ClientService.getAccessToken(tokenStorage)));
+		iGenericClient.registerInterceptor(new BearerTokenAuthInterceptor(oauth2ClientService.getAccessToken()));
 
 		return iGenericClient;
 
@@ -166,9 +160,9 @@ public abstract class BaseFhirClientService<D extends BaseDto, R extends DomainR
 		}
 	}
 
-	protected R getResourceByIdentifier(TokenStorage tokenStorage, String identifierValue, String identifierSystem) throws JwkException, IOException {
+	protected R getResourceByIdentifier(String identifierValue, String identifierSystem) throws JwkException, IOException {
 		ICriterion<TokenClientParam> criterion = new TokenClientParam("identifier").exactly().systemAndIdentifier(identifierSystem, identifierValue);
-		Bundle bundle = getFhirClient(tokenStorage).search().forResource(getResourceName()).where(criterion).returnBundle(Bundle.class).execute();
+		Bundle bundle = getFhirClient().search().forResource(getResourceName()).where(criterion).returnBundle(Bundle.class).execute();
 		if (bundle.getTotal() > 0) {
 			Bundle.BundleEntryComponent bundleEntryComponent = bundle.getEntry().get(0);
 			return (R) bundleEntryComponent.getResource();

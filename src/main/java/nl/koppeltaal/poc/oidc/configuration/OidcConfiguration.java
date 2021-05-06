@@ -6,26 +6,29 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package nl.koppeltaal.poc.fhir.configuration;
+package nl.koppeltaal.poc.oidc.configuration;
 
-import ca.uhn.fhir.context.FhirContext;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  *
  */
 @Configuration
-@ConfigurationProperties(prefix = "fhir.client")
-public class FhirClientConfiguration {
-	String serverUrl;
+@ConfigurationProperties(prefix = "oidc")
+public class OidcConfiguration {
+
+	String authorizationUrl;
+	String tokenUrl;
 	String clientId;
 	String clientSecret;
 
-	@Bean
-	public FhirContext fhirContext() {
-		return FhirContext.forR4();
+	public String getAuthorizationUrl() {
+		return authorizationUrl;
+	}
+
+	public void setAuthorizationUrl(String authorizationUrl) {
+		this.authorizationUrl = authorizationUrl;
 	}
 
 	public String getClientId() {
@@ -44,12 +47,12 @@ public class FhirClientConfiguration {
 		this.clientSecret = clientSecret;
 	}
 
-	public String getServerUrl() {
-		return serverUrl;
+	public String getTokenUrl() {
+		return tokenUrl;
 	}
 
-	public void setServerUrl(String serverUrl) {
-		this.serverUrl = serverUrl;
+	public void setTokenUrl(String tokenUrl) {
+		this.tokenUrl = tokenUrl;
 	}
 
 }

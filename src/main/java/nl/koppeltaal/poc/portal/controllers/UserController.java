@@ -10,8 +10,8 @@ package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
 import nl.koppeltaal.poc.fhir.dto.*;
-import nl.koppeltaal.poc.fhir.service.Oauth2ClientService;
 import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
+import nl.koppeltaal.poc.oidc.service.OidcClientService;
 import nl.koppeltaal.poc.portal.dto.UserDto;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
@@ -30,15 +30,14 @@ import java.io.IOException;
 @RequestMapping("/api/user")
 public class UserController {
 
-	final Oauth2ClientService oauth2ClientService;
-
+	final OidcClientService oidcClientService;
 	final PatientDtoConverter patientDtoConverter;
 	final PractitionerDtoConverter practitionerDtoConverter;
 	final RelatedPersonDtoConverter relatedPersonDtoConverter;
 	final PatientFhirClientService patientFhirClientService;
 
-	public UserController(Oauth2ClientService oauth2ClientService, PatientDtoConverter patientDtoConverter, PractitionerDtoConverter practitionerDtoConverter, RelatedPersonDtoConverter relatedPersonDtoConverter, PatientFhirClientService patientFhirClientService) {
-		this.oauth2ClientService = oauth2ClientService;
+	public UserController(OidcClientService oidcClientService, PatientDtoConverter patientDtoConverter, PractitionerDtoConverter practitionerDtoConverter, RelatedPersonDtoConverter relatedPersonDtoConverter, PatientFhirClientService patientFhirClientService) {
+		this.oidcClientService = oidcClientService;
 		this.patientDtoConverter = patientDtoConverter;
 		this.practitionerDtoConverter = practitionerDtoConverter;
 		this.relatedPersonDtoConverter = relatedPersonDtoConverter;
@@ -49,9 +48,9 @@ public class UserController {
 	public UserDto getUser(HttpSession httpSession) throws JwkException, IOException {
 		UserDto rv = new UserDto();
 		SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
-		if (tokenStorage.hasToken()) {
-			rv.setUserId(oauth2ClientService.getUserIdFromCredentials(tokenStorage));
-			rv.setUserIdentifier(oauth2ClientService.getUserIdentifierFromCredentials(tokenStorage));
+		if (tokenStorage.hasIdToken()) {
+			rv.setUserId(oidcClientService.getUserIdFromCredentials(tokenStorage));
+			rv.setUserIdentifier(oidcClientService.getUserIdentifierFromCredentials(tokenStorage));
 			rv.setLoggedIn(true);
 		} else {
 			rv.setLoggedIn(false);
@@ -74,7 +73,7 @@ public class UserController {
 				RelatedPersonDto dto = relatedPersonDtoConverter.convert((RelatedPerson) user);
 				String patient = dto.getPatient();
 				rv.setType("RelatedPerson");
-				rv.setPatient(patientDtoConverter.convert(patientFhirClientService.getResourceByReference(tokenStorage, patient)));
+				rv.setPatient(patientDtoConverter.convert(patientFhirClientService.getResourceByReference(patient)));
 				rv.setNameGiven(dto.getNameGiven());
 				rv.setNameFamily(dto.getNameFamily());
 			}
