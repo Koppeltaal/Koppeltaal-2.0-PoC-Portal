@@ -15,7 +15,6 @@ import com.auth0.jwk.JwkException;
 import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
 import nl.koppeltaal.poc.fhir.dto.ActivityDefinitionDto;
 import nl.koppeltaal.poc.fhir.dto.ActivityDefinitionDtoConverter;
-import nl.koppeltaal.poc.generic.TokenStorage;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.ActivityDefinition;
 import org.hl7.fhir.r4.model.codesystems.PublicationStatus;
@@ -34,6 +33,11 @@ public class ActivityDefinitionFhirClientService extends BaseFhirClientService<A
 		super(fhirClientConfiguration, oauth2ClientService, fhirContext, activityDefinitionDtoConverter);
 	}
 
+	public List<ActivityDefinition> getResourcesForPatient(String patientReference) throws IOException, JwkException {
+		ICriterion<TokenClientParam> criterion = ActivityDefinition.STATUS.exactly().code(StringUtils.lowerCase(PublicationStatus.ACTIVE.name()));
+		return getResources(criterion);
+	}
+
 	@Override
 	protected String getDefaultSystem() {
 		return "http:/vzvz.nl/artifacts";
@@ -42,11 +46,6 @@ public class ActivityDefinitionFhirClientService extends BaseFhirClientService<A
 	@Override
 	protected String getResourceName() {
 		return "ActivityDefinition";
-	}
-
-	public List<ActivityDefinition> getResourcesForPatient(String patientReference) throws IOException, JwkException {
-		ICriterion<TokenClientParam> criterion = ActivityDefinition.STATUS.exactly().code(StringUtils.lowerCase(PublicationStatus.ACTIVE.name()));
-		return getResources(criterion);
 	}
 
 }

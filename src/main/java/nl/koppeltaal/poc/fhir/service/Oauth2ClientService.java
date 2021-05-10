@@ -16,6 +16,8 @@ import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
 import nl.koppeltaal.poc.generic.Oauth2TokenResponse;
 import nl.koppeltaal.poc.jwt.JwtValidationService;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -46,6 +48,8 @@ public class Oauth2ClientService {
 
 	private Oauth2TokenResponse tokenResponse;
 
+	private final Log LOG = LogFactory.getLog(Oauth2ClientService.class);
+
 
 	public Oauth2ClientService(FhirClientConfiguration fhirClientConfiguration, FhirCapabilitiesService fhirCapabilitiesService, JwtValidationService jwtValidationService) {
 		this.fhirClientConfiguration = fhirClientConfiguration;
@@ -59,7 +63,12 @@ public class Oauth2ClientService {
 				jwtValidationService.validate(tokenResponse.getAccessToken(), null, 60);
 			}
 		} catch (TokenExpiredException e) {
-			refreshToken();
+			try {
+				refreshToken();
+			} catch (IOException ex) {
+				LOG.warn("Got error during refresh, restart and fetch a new token.");
+				fetchToken();
+			}
 		}
 	}
 
@@ -109,19 +118,26 @@ public class Oauth2ClientService {
 		httpPost.setHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString(String.format("%s:%s", fhirClientConfiguration.getClientId(), fhirClientConfiguration.getClientSecret()).getBytes(StandardCharsets.US_ASCII)));
 		httpPost.setEntity(new UrlEncodedFormEntity(params));
 		CloseableHttpResponse response = httpClient.execute(httpPost);
-		if (response.getStatusLine().getStatusCode() == 401) {
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode == 401) {
 			throw new IOException("Access denied");
-		} else {
+		} else if (statusCode >= 200 && statusCode < 300) {
 			try (InputStream in = response.getEntity().getContent()) {
 				String content = IOUtils.toString(new InputStreamReader(in, Charset.defaultCharset()));
 				ObjectMapper objectMapper = new ObjectMapper();
 				try {
 					tokenResponse = objectMapper.readValue(content, Oauth2TokenResponse.class);
 				} catch (JsonParseException e) {
-					System.out.println(content);
+					LOG.error(String.format("Failed to parse content: %s", content));
 					throw e;
 				}
 			}
+		} else {
+			try (InputStream in = response.getEntity().getContent()) {
+				String content = IOUtils.toString(new InputStreamReader(in, Charset.defaultCharset()));
+				LOG.error(String.format("Unexpected response: %s", content));
+			}
+			throw new IOException("System error");
 		}
 	}
 }
