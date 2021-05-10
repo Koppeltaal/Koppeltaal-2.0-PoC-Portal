@@ -49,7 +49,11 @@ public class LoginController {
 
 	@RequestMapping("code_response")
 	public String codeResponse(HttpSession httpSession, HttpServletRequest request, String code, String state) throws IOException, JwkException {
-		Assert.assertEquals(state, httpSession.getAttribute("state"));
+		String sessionState = (String)httpSession.getAttribute("state");
+		if (StringUtils.isEmpty(sessionState)) {
+			return "redirect:/login";
+		}
+		Assert.assertEquals(state, sessionState);
 		SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
 
 
