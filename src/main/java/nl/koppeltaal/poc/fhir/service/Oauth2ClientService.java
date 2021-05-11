@@ -41,7 +41,7 @@ import java.util.List;
  */
 @Service
 public class Oauth2ClientService {
-	public static final String DEFAULT_SCOPE = "openid user/Patient.* user/Practitioner.*";
+	public static final String DEFAULT_SCOPE = "*/write";
 	private final FhirClientConfiguration fhirClientConfiguration;
 	private final FhirCapabilitiesService fhirCapabilitiesService;
 	private final JwtValidationService jwtValidationService;
@@ -101,7 +101,7 @@ public class Oauth2ClientService {
 			List<NameValuePair> params = new ArrayList<>();
 			params.add(new BasicNameValuePair("grant_type", "refresh_token"));
 			params.add(new BasicNameValuePair("refresh_token", tokenResponse.getRefreshToken()));
-			params.add(new BasicNameValuePair("scope", "openid user/Patient.* user/Practitioner.*"));
+			params.add(new BasicNameValuePair("scope", DEFAULT_SCOPE));
 
 			postTokenRequest(tokenUrl, httpClient, params);
 		}
