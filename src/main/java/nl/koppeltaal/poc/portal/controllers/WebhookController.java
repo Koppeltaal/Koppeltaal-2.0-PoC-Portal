@@ -6,9 +6,11 @@ import nl.koppeltaal.poc.portal.service.EmailService;
 import org.hl7.fhir.r4.model.Patient;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("webhook")
+@RestController
+@RequestMapping("webhook")
 public class WebhookController {
 
   private final EmailService emailService;
@@ -26,5 +28,6 @@ public class WebhookController {
 
     emailService.sendWelcomeEmail(patient);
   }
+
 
 }
