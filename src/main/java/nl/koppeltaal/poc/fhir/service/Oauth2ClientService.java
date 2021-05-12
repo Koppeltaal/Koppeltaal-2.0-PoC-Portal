@@ -62,7 +62,7 @@ public class Oauth2ClientService {
 			if (tokenResponse != null) {
 				jwtValidationService.validate(tokenResponse.getAccessToken(), null, 60);
 			}
-		} catch (TokenExpiredException e) {
+		} catch (JwkException e) {
 			try {
 				refreshToken();
 			} catch (IOException ex) {
