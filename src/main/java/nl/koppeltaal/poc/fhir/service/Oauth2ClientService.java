@@ -58,7 +58,7 @@ public class Oauth2ClientService {
 		this.jwtValidationService = jwtValidationService;
 	}
 
-	public void checkCredentials() throws JwkException, IOException {
+	public void checkCredentials() throws IOException {
 		try {
 			if (tokenResponse != null) {
 				jwtValidationService.validate(tokenResponse.getAccessToken(), null, 60);
@@ -86,7 +86,7 @@ public class Oauth2ClientService {
 
 	}
 
-	public String getAccessToken() throws JwkException, IOException {
+	public String getAccessToken() throws IOException {
 		if (tokenResponse == null) {
 			fetchToken();
 		} else {
