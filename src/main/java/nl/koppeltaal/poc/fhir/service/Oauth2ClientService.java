@@ -9,6 +9,7 @@
 package nl.koppeltaal.poc.fhir.service;
 
 import com.auth0.jwk.JwkException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,7 +63,7 @@ public class Oauth2ClientService {
 			if (tokenResponse != null) {
 				jwtValidationService.validate(tokenResponse.getAccessToken(), null, 60);
 			}
-		} catch (JwkException e) {
+		} catch (JwkException | JWTVerificationException e) {
 			try {
 				refreshToken();
 			} catch (IOException ex) {

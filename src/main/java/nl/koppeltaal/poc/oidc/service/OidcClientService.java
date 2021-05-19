@@ -9,6 +9,7 @@
 package nl.koppeltaal.poc.oidc.service;
 
 import com.auth0.jwk.JwkException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
@@ -105,7 +106,7 @@ public class OidcClientService {
 		return HttpClients.createDefault();
 	}
 
-	private DecodedJWT getIdToken(TokenStorage tokenStorage) throws JwkException {
+	private DecodedJWT getIdToken(TokenStorage tokenStorage) throws JwkException, JWTVerificationException {
 		return jwtValidationService.validate(tokenStorage.getIdToken().getIdToken(), oidcConfiguration.getClientId(), 60);
 	}
 

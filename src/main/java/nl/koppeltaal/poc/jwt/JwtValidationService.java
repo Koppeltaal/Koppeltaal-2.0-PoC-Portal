@@ -13,6 +13,7 @@ import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.Verification;
 import org.apache.commons.lang3.StringUtils;
@@ -62,11 +63,11 @@ public class JwtValidationService {
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
-	public DecodedJWT validate(String token, String audience) throws JwkException {
+	public DecodedJWT validate(String token, String audience) throws JwkException, JWTVerificationException {
 		return validate(token, audience, 10);
 	}
 
-	public DecodedJWT validate(String token, String audience, int leeway) throws JwkException {
+	public DecodedJWT validate(String token, String audience, int leeway) throws JwkException, JWTVerificationException {
 		// Get the algorithm name from the JWT.
 		DecodedJWT decode = JWT.decode(token);
 		String algorithmName = decode.getAlgorithm();
