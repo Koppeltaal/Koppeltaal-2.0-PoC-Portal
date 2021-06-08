@@ -8,9 +8,9 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
-import nl.koppeltaal.poc.fhir.dto.EndpointDto;
-import nl.koppeltaal.poc.fhir.dto.EndpointDtoConverter;
-import nl.koppeltaal.poc.fhir.service.EndpointFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.EndpointDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.EndpointDtoConverter;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.EndpointFhirClientService;
 import org.hl7.fhir.r4.model.Endpoint;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

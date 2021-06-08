@@ -8,7 +8,7 @@
 
 package nl.koppeltaal.poc.portal.dto;
 
-import nl.koppeltaal.poc.fhir.dto.PatientDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.PatientDto;
 
 /**
  *

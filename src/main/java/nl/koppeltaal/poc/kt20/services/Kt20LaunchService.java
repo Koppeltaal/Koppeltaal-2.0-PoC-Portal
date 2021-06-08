@@ -2,17 +2,38 @@ package nl.koppeltaal.poc.kt20.services;
 
 import com.auth0.jwk.JwkException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.koppeltaal.poc.fhir.service.*;
-import nl.koppeltaal.poc.fhir.utils.ResourceUtils;
-import nl.koppeltaal.poc.generic.TokenStorage;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import nl.koppeltaal.poc.kt20.KeyUtils;
 import nl.koppeltaal.poc.kt20.configuration.Kt20ClientConfiguration;
 import nl.koppeltaal.poc.kt20.configuration.Kt20ServerConfiguration;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
 import nl.koppeltaal.poc.kt20.valueobjects.Task;
 import nl.koppeltaal.poc.portal.controllers.SessionTokenStorage;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.ActivityDefinitionFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.EndpointFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.LocationFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PractitionerFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.TaskFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.utils.ResourceUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.ActivityDefinition;
+import org.hl7.fhir.r4.model.Endpoint;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.RelatedPerson;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jwk.Use;
@@ -24,13 +45,6 @@ import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.*;
 
 /**
  *

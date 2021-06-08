@@ -9,18 +9,23 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import nl.koppeltaal.poc.fhir.dto.TaskDto;
-import nl.koppeltaal.poc.fhir.dto.TaskDtoConverter;
-import nl.koppeltaal.poc.fhir.service.ActivityDefinitionFhirClientService;
-import nl.koppeltaal.poc.fhir.service.PatientFhirClientService;
-import nl.koppeltaal.poc.fhir.service.TaskFhirClientService;
-import org.hl7.fhir.r4.model.*;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpSession;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDtoConverter;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.ActivityDefinitionFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.TaskFhirClientService;
+import org.hl7.fhir.r4.model.ActivityDefinition;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.Task;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
