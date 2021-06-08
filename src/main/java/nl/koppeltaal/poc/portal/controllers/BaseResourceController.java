@@ -1,19 +1,21 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import nl.koppeltaal.poc.fhir.dto.BaseDto;
-import nl.koppeltaal.poc.fhir.dto.DtoConverter;
-import nl.koppeltaal.poc.fhir.exception.EnitityNotFoundException;
-import nl.koppeltaal.poc.fhir.service.BaseFhirClientService;
-import nl.koppeltaal.poc.utils.UrlUtils;
-import org.hl7.fhir.r4.model.DomainResource;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import nl.koppeltaal.poc.utils.UrlUtils;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.BaseDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.DtoConverter;
+import nl.koppeltaal.spring.boot.starter.smartservice.exception.EnitityNotFoundException;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.BaseFhirClientService;
+import org.hl7.fhir.r4.model.DomainResource;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  *

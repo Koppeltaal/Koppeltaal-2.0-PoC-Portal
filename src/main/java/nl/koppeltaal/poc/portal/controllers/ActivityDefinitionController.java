@@ -9,15 +9,17 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import nl.koppeltaal.poc.fhir.dto.ActivityDefinitionDto;
-import nl.koppeltaal.poc.fhir.dto.ActivityDefinitionDtoConverter;
-import nl.koppeltaal.poc.fhir.service.ActivityDefinitionFhirClientService;
-import org.hl7.fhir.r4.model.ActivityDefinition;
-import org.springframework.web.bind.annotation.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.ActivityDefinitionDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.ActivityDefinitionDtoConverter;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.ActivityDefinitionFhirClientService;
+import org.hl7.fhir.r4.model.ActivityDefinition;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *

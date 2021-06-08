@@ -8,9 +8,9 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
-import nl.koppeltaal.poc.fhir.dto.PractitionerDto;
-import nl.koppeltaal.poc.fhir.dto.PractitionerDtoConverter;
-import nl.koppeltaal.poc.fhir.service.PractitionerFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.PractitionerDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.PractitionerDtoConverter;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PractitionerFhirClientService;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

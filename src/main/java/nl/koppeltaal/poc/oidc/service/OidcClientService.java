@@ -11,12 +11,19 @@ package nl.koppeltaal.poc.oidc.service;
 import com.auth0.jwk.JwkException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.koppeltaal.poc.fhir.configuration.FhirClientConfiguration;
-import nl.koppeltaal.poc.fhir.dto.AuthorizationUrlDto;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
 import nl.koppeltaal.poc.generic.IdTokenResponse;
 import nl.koppeltaal.poc.generic.TokenStorage;
-import nl.koppeltaal.poc.jwt.JwtValidationService;
 import nl.koppeltaal.poc.oidc.configuration.OidcConfiguration;
+import nl.koppeltaal.spring.boot.starter.smartservice.configuration.SmartServiceConfiguration;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.AuthorizationUrlDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.jwt.JwtValidationService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
@@ -28,11 +35,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-
 /**
  *
  */
@@ -42,7 +44,7 @@ public class OidcClientService {
 	final JwtValidationService jwtValidationService;
 	final OidcConfiguration oidcConfiguration;
 
-	public OidcClientService(JwtValidationService jwtValidationService, FhirClientConfiguration fhirClientConfiguration, OidcConfiguration oidcConfiguration) {
+	public OidcClientService(JwtValidationService jwtValidationService, SmartServiceConfiguration smartServiceConfiguration, OidcConfiguration oidcConfiguration) {
 		this.jwtValidationService = jwtValidationService;
 		this.oidcConfiguration = oidcConfiguration;
 	}

@@ -8,9 +8,9 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
-import nl.koppeltaal.poc.fhir.dto.LocationDto;
-import nl.koppeltaal.poc.fhir.dto.LocationDtoConverter;
-import nl.koppeltaal.poc.fhir.service.LocationFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.LocationDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.LocationDtoConverter;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.LocationFhirClientService;
 import org.hl7.fhir.r4.model.Location;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
