@@ -57,7 +57,7 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 
 	@RequestMapping(method = RequestMethod.PUT)
 	public Dto put(HttpSession httpSession, HttpServletRequest request, @RequestBody Dto dto) throws IOException, JwkException {
-		return dtoConverter.convert(fhirClientService.storeResource(UrlUtils.getServerUrl("", request), dtoConverter.convert(dto)));
+		return dtoConverter.convert(fhirClientService.storeResource(dtoConverter.convert(dto)));
 	}
 
 }
