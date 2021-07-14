@@ -282,7 +282,7 @@
       .then((user) => {
         if (user.loggedIn) {
           currentUser = user;
-          document.getElementById('patient').value = currentUser.userId || '';
+          document.getElementById('patient').value = currentUser.patient.reference || '';
           document.getElementById('organization').value = currentUser.patient.organization || '';
           render()
           registerFormInputListeners();
