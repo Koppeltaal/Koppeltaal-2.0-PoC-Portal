@@ -1,5 +1,7 @@
 package nl.koppeltaal.poc.kt20.services;
 
+import static nl.koppeltaal.spring.boot.starter.smartservice.utils.ResourceUtils.getReference;
+
 import com.auth0.jwk.JwkException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -23,7 +25,6 @@ import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.LocationFhirC
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PractitionerFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.TaskFhirClientService;
-import nl.koppeltaal.spring.boot.starter.smartservice.utils.ResourceUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.ActivityDefinition;
 import org.hl7.fhir.r4.model.Endpoint;
@@ -98,10 +99,10 @@ public class Kt20LaunchService {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getOrCreateTask( patient, null, fhirDefinition, isNew);
 		Assert.notNull(fhirTask, "FHIR Task not created");
 
-		Task task = buildTask(fhirTask, new Reference(ResourceUtils.getReference(patient)));
+		Task task = buildTask(fhirTask);
 
 
-		String launchToken = getLaunchToken(task, fhirDefinition);
+		String launchToken = getLaunchToken(task, fhirDefinition, getReference(patient));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
@@ -110,8 +111,8 @@ public class Kt20LaunchService {
 		Assert.notNull(fhirDefinition, String.format("ActivityDefinition with id %s not found.", treatmentId));
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getOrCreateTask(patient, practitioner, fhirDefinition, isNew);
 		Assert.notNull(fhirTask, "FHIR Task not created");
-		Task task = buildTask(fhirTask, new Reference(ResourceUtils.getReference(practitioner)));
-		String launchToken = getLaunchToken(task, fhirDefinition);
+		Task task = buildTask(fhirTask);
+		String launchToken = getLaunchToken(task, fhirDefinition, getReference(practitioner));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
@@ -119,33 +120,33 @@ public class Kt20LaunchService {
 		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(treatmentId);
 		Assert.notNull(fhirDefinition, String.format("ActivityDefinition with id %s not found.", treatmentId));
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getOrCreateTask(fhirPatient, null, fhirDefinition, isNew);
-		Task task = buildTask(fhirTask, new Reference(ResourceUtils.getReference(fhirRelatedPerson)));
+		Task task = buildTask(fhirTask);
 		Assert.notNull(fhirTask, "FHIR Task not created");
-		String launchToken = getLaunchToken(task, fhirDefinition);
+		String launchToken = getLaunchToken(task, fhirDefinition, getReference(fhirRelatedPerson));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
 	public LaunchData launchTaskPatient(Patient patient, String taskId) throws IOException, JwkException, GeneralSecurityException {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
 		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(fhirTask.getInstantiatesCanonical());
-		Task task = buildTask(fhirTask, new Reference(ResourceUtils.getReference(patient)));
-		String launchToken = getLaunchToken(task, fhirDefinition);
+		Task task = buildTask(fhirTask);
+		String launchToken = getLaunchToken(task, fhirDefinition, getReference(patient));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
 	public LaunchData launchTaskPractitioner(Practitioner practitioner, String taskId) throws IOException, JwkException, GeneralSecurityException {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
 		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(fhirTask.getInstantiatesCanonical());
-		Task task = buildTask(fhirTask, new Reference(ResourceUtils.getReference(practitioner)));
-		String launchToken = getLaunchToken(task, fhirDefinition);
+		Task task = buildTask(fhirTask);
+		String launchToken = getLaunchToken(task, fhirDefinition, getReference(practitioner));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
 	public LaunchData launchTaskRelatedPerson(SessionTokenStorage tokenStorage, RelatedPerson relatedPerson, String taskId) throws IOException, JwkException, GeneralSecurityException {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
 		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(fhirTask.getInstantiatesCanonical());
-		Task task = buildTask(fhirTask, new Reference(ResourceUtils.getReference(relatedPerson)));
-		String launchToken = getLaunchToken(task, fhirDefinition);
+		Task task = buildTask(fhirTask);
+		String launchToken = getLaunchToken(task, fhirDefinition, getReference(relatedPerson));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
@@ -176,14 +177,13 @@ public class Kt20LaunchService {
 		return jwe.getCompactSerialization();
 	}
 
-	private Task buildTask(org.hl7.fhir.r4.model.Task fhirTask, Reference forUser) {
+	private Task buildTask(org.hl7.fhir.r4.model.Task fhirTask) {
 		Task task = new Task();
 		task.setResourceType("Task");
 		task.setId(fhirTask.getIdElement().getIdPart());
 		Assert.notNull(fhirTask.getInstantiatesCanonical(), "DefinitionReference in FHIR Task is null");
 		task.getDefinitionReference().setReference(fhirTask.getInstantiatesCanonical());
 		task.setOwner(buildUser(fhirTask.getOwner()));
-		task.setForUser(buildUser(forUser));
 		task.setRequester(buildUser(fhirTask.getRequester()));
 		task.setIdentifier(buildIdentifier(fhirTask.getIdentifier()));
 		return task;
@@ -197,10 +197,11 @@ public class Kt20LaunchService {
 		return user;
 	}
 
-	protected String getLaunchToken(Task task, ActivityDefinition definition) throws GeneralSecurityException {
+	protected String getLaunchToken(Task task, ActivityDefinition definition, String launchingUserReference) throws GeneralSecurityException {
 		try {
 			JwtClaims claims = new JwtClaims();
 			claims.setClaim("task", toMap(task));
+			claims.setSubject(launchingUserReference);
 			claims.setIssuedAt(NumericDate.now());
 			claims.setAudience(getUrlForActivityDefinition(definition));
 			claims.setIssuer(kt20ServerConfiguration.getIssuer());
