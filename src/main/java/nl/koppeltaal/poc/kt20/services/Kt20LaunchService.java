@@ -19,6 +19,7 @@ import nl.koppeltaal.poc.kt20.configuration.Kt20ServerConfiguration;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
 import nl.koppeltaal.poc.kt20.valueobjects.Task;
 import nl.koppeltaal.poc.portal.controllers.SessionTokenStorage;
+import nl.koppeltaal.spring.boot.starter.smartservice.dto.ActivityDefinitionDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.ActivityDefinitionFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.EndpointFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.LocationFhirClientService;
@@ -30,7 +31,6 @@ import org.hl7.fhir.r4.model.ActivityDefinition;
 import org.hl7.fhir.r4.model.Endpoint;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
@@ -239,14 +239,21 @@ public class Kt20LaunchService {
 	}
 
 	private String getUrlForActivityDefinition(ActivityDefinition fhirDefinition) throws IOException, JwkException {
-		Reference locationReference = fhirDefinition.getLocation();
-		Location location = locationFhirClientService.getResourceByReference(locationReference);
-		for (Reference endpointReference : location.getEndpoint()) {
-			Endpoint ep = endpointFhirClientService.getResourceByReference(endpointReference);
-			if (ep != null)
-				return ep.getAddress();
+
+		final List<Extension> endpointExtension = fhirDefinition.getExtensionsByUrl(ActivityDefinitionDto.EXTENSION__ENDPOINT);
+
+		if(endpointExtension.isEmpty()) {
+			throw new IllegalStateException("No endpoint found");
 		}
-		return null;
+
+		final Reference endpointReference = (Reference) endpointExtension.get(0).getValue();
+		Endpoint endpoint = endpointFhirClientService.getResourceByReference(endpointReference);
+
+		if(endpoint == null) {
+			throw new IllegalStateException("No endpoint object found for reference " + endpointReference.getReference());
+		}
+
+		return endpoint.getAddress();
 	}
 
 	private boolean isRedirect(ActivityDefinition definition) {
