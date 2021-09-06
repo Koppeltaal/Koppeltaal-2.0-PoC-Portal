@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.UUID;
 import nl.koppeltaal.poc.kt20.KeyUtils;
 import nl.koppeltaal.poc.kt20.configuration.Kt20ClientConfiguration;
-import nl.koppeltaal.poc.kt20.configuration.Kt20ServerConfiguration;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
 import nl.koppeltaal.poc.kt20.valueobjects.Task;
 import nl.koppeltaal.poc.portal.controllers.SessionTokenStorage;
@@ -26,6 +25,7 @@ import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.LocationFhirC
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PractitionerFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.TaskFhirClientService;
+import nl.koppeltaal.springbootstarterjwks.config.JwksConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.ActivityDefinition;
 import org.hl7.fhir.r4.model.Endpoint;
@@ -38,12 +38,12 @@ import org.hl7.fhir.r4.model.RelatedPerson;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jwk.Use;
-import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -57,10 +57,13 @@ public class Kt20LaunchService {
 	ObjectMapper objectMapper;
 
 	@Autowired
-	Kt20ServerConfiguration kt20ServerConfiguration;
+	Kt20ClientConfiguration kt20ClientConfiguration;
 
 	@Autowired
-	Kt20ClientConfiguration kt20ClientConfiguration;
+	JwksConfiguration jwksConfiguration;
+
+	@Value("${kt20.server.issuer:koppeltaal-2.0-poc-portal}")
+	String issuer;
 
 	@Autowired
 	PatientFhirClientService patientFhirClientService;
@@ -204,7 +207,7 @@ public class Kt20LaunchService {
 			claims.setSubject(launchingUserReference);
 			claims.setIssuedAt(NumericDate.now());
 			claims.setAudience(getUrlForActivityDefinition(definition));
-			claims.setIssuer(kt20ServerConfiguration.getIssuer());
+			claims.setIssuer(issuer);
 			claims.setExpirationTime(NumericDate.fromMilliseconds(System.currentTimeMillis() + 15 * 60 * 1000));
 			claims.setJwtId(UUID.randomUUID().toString());
 
@@ -213,7 +216,7 @@ public class Kt20LaunchService {
 			// The payload of the JWS is JSON content of the JWT Claims
 			jws.setPayload(claims.toJson());
 
-			KeyPair rsaKeyPair = KeyUtils.getRsaKeyPair(kt20ServerConfiguration.getPublicKey(), kt20ServerConfiguration.getPrivateKey());
+			KeyPair rsaKeyPair = KeyUtils.getRsaKeyPair(jwksConfiguration.getSigningPublicKey(), jwksConfiguration.getSigningPrivateKey());
 			PublicJsonWebKey jwk = PublicJsonWebKey.Factory.newPublicJwk(rsaKeyPair.getPublic());
 			jwk.setPrivateKey(rsaKeyPair.getPrivate());
 			jwk.setUse(Use.SIGNATURE);
@@ -227,7 +230,7 @@ public class Kt20LaunchService {
 			jws.setKeyIdHeaderValue(KeyUtils.getFingerPrint(rsaKeyPair.getPublic()));
 
 			// Set the signature algorithm on the JWT/JWS that will integrity protect the claims
-			jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA512);
+			jws.setAlgorithmHeaderValue(jwksConfiguration.getSigningAlgorithm());
 
 			final String payload = jws.getCompactSerialization();
 			final boolean useJwe = isUseJwe(definition);
