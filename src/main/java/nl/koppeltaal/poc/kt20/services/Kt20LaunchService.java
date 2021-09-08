@@ -38,6 +38,7 @@ import org.hl7.fhir.r4.model.RelatedPerson;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jwk.Use;
+import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
@@ -220,7 +221,6 @@ public class Kt20LaunchService {
 			PublicJsonWebKey jwk = PublicJsonWebKey.Factory.newPublicJwk(rsaKeyPair.getPublic());
 			jwk.setPrivateKey(rsaKeyPair.getPrivate());
 			jwk.setUse(Use.SIGNATURE);
-			jwk.setAlgorithm(jwksConfiguration.getSigningAlgorithm());
 
 			// The JWT is signed using the private key
 			jws.setKey(jwk.getPrivateKey());
@@ -231,7 +231,8 @@ public class Kt20LaunchService {
 			jws.setKeyIdHeaderValue(KeyUtils.getFingerPrint(rsaKeyPair.getPublic()));
 
 			// Set the signature algorithm on the JWT/JWS that will integrity protect the claims
-			jws.setAlgorithmHeaderValue(jwksConfiguration.getSigningAlgorithm());
+			final String signingAlgorithm = jwksConfiguration.getSigningAlgorithm();
+			jws.setAlgorithmHeaderValue(StringUtils.isNotBlank(signingAlgorithm) ? signingAlgorithm : AlgorithmIdentifiers.RSA_USING_SHA512);
 
 			final String payload = jws.getCompactSerialization();
 			final boolean useJwe = isUseJwe(definition);
