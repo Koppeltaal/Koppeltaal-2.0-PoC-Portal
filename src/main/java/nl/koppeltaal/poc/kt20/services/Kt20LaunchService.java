@@ -220,6 +220,7 @@ public class Kt20LaunchService {
 			PublicJsonWebKey jwk = PublicJsonWebKey.Factory.newPublicJwk(rsaKeyPair.getPublic());
 			jwk.setPrivateKey(rsaKeyPair.getPrivate());
 			jwk.setUse(Use.SIGNATURE);
+			jwk.setAlgorithm(jwksConfiguration.getSigningAlgorithm());
 
 			// The JWT is signed using the private key
 			jws.setKey(jwk.getPrivateKey());
