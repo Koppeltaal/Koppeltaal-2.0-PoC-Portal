@@ -16,7 +16,7 @@ public class Task {
 	String id;
 	Meta meta;
 	Text text;
-	final Reference definitionReference = new Reference();
+	String instantiatesCanonical;
 	List<Identifier> identifier = new ArrayList<>();
 	String status = "requested";
 	String intent = "plan";
@@ -25,8 +25,12 @@ public class Task {
 	User requester;
 	User owner;
 
-	public Reference getDefinitionReference() {
-		return definitionReference;
+	public String getInstantiatesCanonical() {
+		return instantiatesCanonical;
+	}
+
+	public void setInstantiatesCanonical(String instantiatesCanonical) {
+		this.instantiatesCanonical = instantiatesCanonical;
 	}
 
 	public User getForUser() {

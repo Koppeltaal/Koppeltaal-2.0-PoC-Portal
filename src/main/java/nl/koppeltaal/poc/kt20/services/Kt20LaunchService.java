@@ -105,7 +105,6 @@ public class Kt20LaunchService {
 
 		Task task = buildTask(fhirTask);
 
-
 		String launchToken = getLaunchToken(task, fhirDefinition, getReference(patient));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
@@ -185,8 +184,9 @@ public class Kt20LaunchService {
 		Task task = new Task();
 		task.setResourceType("Task");
 		task.setId(fhirTask.getIdElement().getIdPart());
-		Assert.notNull(fhirTask.getInstantiatesCanonical(), "DefinitionReference in FHIR Task is null");
-		task.getDefinitionReference().setReference(fhirTask.getInstantiatesCanonical());
+		final String instantiatesCanonical = fhirTask.getInstantiatesCanonical();
+		Assert.notNull(instantiatesCanonical, "Task.instantiatesCanonical is null");
+		task.setInstantiatesCanonical(instantiatesCanonical);
 		task.setOwner(buildUser(fhirTask.getOwner()));
 		task.setRequester(buildUser(fhirTask.getRequester()));
 		task.setIdentifier(buildIdentifier(fhirTask.getIdentifier()));
