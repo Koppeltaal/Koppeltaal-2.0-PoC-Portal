@@ -30,12 +30,25 @@ function readValue(value, name) {
 
 const formToJson = (form) => {
   return Array.from(form.querySelectorAll('input, select, textarea'))
-    .filter(element => element.name)
-    .reduce((json, element) => {
-      let value = element.type === 'checkbox' ? element.checked : element.value;
+  .filter(element => element.name)
+  .reduce((json, element) => {
+    let value = element.type === 'checkbox' ? element.checked : element.value;
+
+    if (element.selectedOptions) { //multi-select
+      for (let i = 0; i < element.selectedOptions.length; i++) {
+        value = element.selectedOptions[i].value;
+        if (i === 0) {
+          json[element.name] = [writeValue(value, element.name)];
+        } else {
+          json[element.name].push(writeValue(value, element.name));
+        }
+      }
+    } else {
       json[element.name] = writeValue(value, element.name);
-      return json;
-    }, {});
+    }
+
+    return json;
+  }, {});
 }
 
 let parseHtml = function (html) {
@@ -121,6 +134,15 @@ const jsonPublicResponseHandler = (response) => {
     throw Error(response.statusText);
   }
   return response.json();
+}
+
+const createHtmlTd = (...args) => {
+  let td = document.createElement('td');
+  args.forEach((arg) => {
+    td.innerHTML += (td.innerHTML.length > 0 ? ' ' : '');
+    td.innerHTML += arg || '';
+  });
+  return td;
 }
 
 const createTd = (...args) => {

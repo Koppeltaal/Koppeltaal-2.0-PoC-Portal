@@ -42,7 +42,7 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 		if (resource != null) {
 			return dtoConverter.convert(resource);
 		} else {
-			throw new EnitityNotFoundException("Cannot locate activitydefinition " + reference);
+			throw new EnitityNotFoundException("Cannot locate resource " + reference);
 		}
 	}
 
@@ -57,7 +57,7 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 	}
 
 	@RequestMapping(method = RequestMethod.PUT)
-	public Dto put(HttpSession httpSession, HttpServletRequest request, @RequestBody Dto dto) throws IOException, JwkException {
+	public Dto put(HttpSession httpSession, HttpServletRequest request, @RequestBody Dto dto) throws IOException {
 		return dtoConverter.convert(fhirClientService.storeResource(dtoConverter.convert(dto)));
 	}
 

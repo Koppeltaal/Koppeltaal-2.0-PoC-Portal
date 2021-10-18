@@ -1,0 +1,278 @@
+<!--
+  ~ Copyright (c) Stichting Koppeltaal 2021.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  -->
+
+<html lang="en" >
+<head>
+    <title>Het Portaal - relatedpersons</title>
+    <link rel="icon" type="image/svg+xml" href="../icons/public-24px.svg">
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="../css/materialize.min.css"
+          media="screen,projection"/>
+
+</head>
+<body>
+
+<nav class="nav-extended teal darken-1">
+    <div class="nav-wrapper ">
+        &nbsp; <a href="#" class="brand-logo">Het Portaal <i class="large material-icons">public</i></a>
+        <ul id="nav-mobile" class="right">
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </div>
+    <div class="nav-content loggedin teal lighten-3">
+        <ul class="tabs tabs-transparent">
+            <li class="tab"><a href="index.html">Main</a></li>
+            <li class="tab"><a href="tasks.html">Tasks</a></li>
+            <li class="tab"><a href="relatedpersons.html">Friends & Family</a></li>
+            <li class="tab"><a href="careteams.html" class="active">Groepen</a></li>
+            <li class="tab right"><a href="/logout" class="user"></a></li>
+        </ul>
+    </div>
+</nav>
+<div class="container content-tab groups">
+    <div class="row">
+        <div class="col s12">
+            <h2>Groepen</h2>
+        </div>
+    </div>
+    <div class="row careteam-container">
+        <div class="col s12">
+            <table class="data">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Participants</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="new-careteam-container" class="row">
+        <form action="/api/CareTeam" data-tab="careTeams" class="col s12">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Create a new group</span>
+
+                    <input name="reference" id="reference" type="hidden"/>
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <input placeholder="Mijn vertrouwensgroep" name="name" id="group-name" type="text" class="validate">
+                            <label for="group-name">Naam</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <select id="participant-select" name="participants" multiple></select>
+                            <label>Members</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action">
+                    <button id="reset-button" class="btn waves-effect waves-light" type="reset" name="action">Reset
+                        <i class="material-icons left">clear</i>
+                    </button>
+                    <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<!--JavaScript at end of body for optimized loading-->
+<script type="text/javascript" src="../js/materialize.min.js"></script>
+<script type="text/javascript" src="../js/utils.js"></script>
+<script>
+  let currentUser;
+  let selectInstance;
+  let practitionerMap = {};
+  let relatedPersonMap = {};
+
+  document.addEventListener('DOMContentLoaded', function () {
+      fetch('/api/user/current')
+      .then(jsonResponseHandler)
+      .then((user) => {
+          if (user.loggedIn) {
+              currentUser = user;
+              render()
+              registerFormInputListeners();
+              registerFormSubmitListeners(render);
+              insertCurrentUser(currentUser);
+          } else {
+              let res = window.confirm("It seems you are logged out, go to the login page?")
+              if (res) {
+                  window.location = '/login';
+              }
+          }
+      }).catch(() => {
+          let res = window.confirm("It seems you are logged out, go to the login page?")
+          if (res) {
+              window.location = '/login';
+          }
+      });
+  }, false);
+
+  const render = () => {
+
+      document.querySelectorAll('option[selected]').forEach(option => {
+          option.removeAttribute('selected');
+      })
+
+      fetch('/api/CareTeam?t_=' + new Date().getTime())
+      .then(jsonResponseHandler)
+      .then(fetchCareTeamHandler);
+  }
+
+  render();
+
+  Promise.all([
+      fetch('/api/Practitioner'),
+      fetch('/api/RelatedPerson'),
+      fetch('/api/CareTeam')
+  ]).then(function (responses) {
+      // Get a JSON object from each of the responses
+      return Promise.all(responses.map(function (response) {
+          return response.json();
+      }));
+  }).then(function (data) {
+      fetchPractitionerHandler(data[0])
+      fetchRelatedPersonHandler(data[1])
+      fetchCareTeamHandler(data[2])
+
+      selectInstance = M.FormSelect.init(document.querySelectorAll('select'));
+  }).catch(function (error) {
+      // if there's an error, log it
+      console.log(error);
+  });
+
+  const registerFormInputListeners = () => {
+    document.getElementById('reference').onchange = (e) => {
+      let input = e.target;
+      let value = input.value
+      if (value) {
+        fetch('/api/' + value)
+          .then(jsonResponseHandler)
+          .then((data) => {
+            for (let [key, value] of Object.entries(data)) {
+              let element = document.querySelector(`[name="${key}"]`);
+              if (element) {
+                if (element.nodeName === 'TEXTAREA') {
+                    element.textContent = readValue(value, key);
+                }  else if(element.nodeName === 'SELECT') {
+                    if(Array.isArray(value)) {
+                        element.querySelectorAll('option[selected]').forEach(selectedOpt => {
+                            selectedOpt.removeAttribute("selected");
+                        })
+                        value.forEach(val => {
+                            const option = element.querySelector(`[value="${val}"]`);
+                            if(option) option.setAttribute('selected', 'selected');
+                        });
+                    } else {
+                        const option = element.querySelector(`[value="${value}"]`);
+                        if(option) option.setAttribute('selected', 'selected');
+                    }
+                } else {
+                  element.value = readValue(value, key);
+                }
+
+                if (element !== input) {
+                  var event = new Event('change');
+                  element.dispatchEvent(event)
+                }
+              }
+            }
+          })
+          .then(updateForm)
+          .catch(reason => {
+            // ignore
+            console.log(reason)
+          })
+      }
+    }
+  }
+
+  function fetchRelatedPersonHandler(data) {
+      const select = document.getElementById('participant-select');
+
+      const group = parseHtml('<optgroup label="Friends & Family">');
+      select.appendChild(group);
+      for (let relatedPerson of Object.values(data)) {
+          const option = parseHtml(`<option value="${relatedPerson.reference}">${relatedPerson.nameFamily}, ${relatedPerson.nameGiven}</option>`)
+          select.appendChild(option);
+
+          relatedPersonMap[relatedPerson.reference] = `${relatedPerson.nameFamily}, ${relatedPerson.nameGiven}`;
+      }
+  }
+
+  function fetchPractitionerHandler(data) {
+      const select = document.getElementById('participant-select');
+
+      const group = parseHtml('<optgroup label="Practitioners">');
+      select.appendChild(group);
+      for (let practitioner of Object.values(data)) {
+          const option = parseHtml(`<option value="${practitioner.reference}">${practitioner.nameFamily}, ${practitioner.nameGiven}</option>`)
+          group.appendChild(option);
+
+          practitionerMap[practitioner.reference] = `${practitioner.nameFamily}, ${practitioner.nameGiven}`;
+      }
+  }
+
+  function fetchCareTeamHandler(data) {
+      const tdata = document.querySelector('.careteam-container table.data tbody');
+      tdata.innerHTML = '';
+      for (let careTeam of Object.values(data)) {
+          const tr = document.createElement('tr');
+
+          let participants = "";
+          careTeam.participants.forEach((participant) =>
+              participants += `<span class="new badge" data-badge-caption="${practitionerMap[participant] || relatedPersonMap[participant] || participant}"></span> `
+          );
+
+          console.log(participants)
+          tr.append(createTd(careTeam.name));
+          tr.append(createHtmlTd(participants));
+          let td = document.createElement('td');
+          let deleteAction = parseHtml(
+              '<a href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">delete_forever</i>delete</a>')
+          deleteAction.setAttribute("data-reference", careTeam.reference)
+          deleteAction.onclick = (e) => {
+              const reference = e.target.getAttribute("data-reference");
+              fetch('/api/' + reference, {method: 'DELETE'}).then(() => {
+                  render();
+              });
+              document.getElementById('reference').value = "";
+              return false;
+          }
+          td.append(deleteAction);
+          td.append(' ');
+          let editAction = parseHtml(
+              '<a href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">edit</i>edit</a>')
+          editAction.setAttribute("data-reference", careTeam.reference)
+          editAction.onclick = (e) => {
+              document.getElementById('reference').value = e.target.getAttribute(
+                  "data-reference");
+              var evt = document.createEvent("HTMLEvents");
+              evt.initEvent("change", false, true);
+              document.getElementById('reference').dispatchEvent(evt);
+              return false;
+          }
+          td.append(editAction);
+          tr.append(td);
+
+          tdata.append(tr);
+      }
+  }
+</script>
+</body>
+</html>
