@@ -116,136 +116,161 @@
 <script type="text/javascript" src="../js/utils.js"></script>
 <script>
 
-  const renderActivityDefinitions = (patient, practitioners) => {
-    fetch('/api/ActivityDefinition/' + patient.reference)
-      .then(jsonResponseHandler)
-      .then((data) => {
-        const activitydefinitions = {};
-        for (var i in data) {
-          const tdata = document.querySelector('div.activitydefinitions table.data tbody');
-          tdata.innerHTML = '';
-          for (let activitydefinition of Object.values(data)) {
-            const tr = document.createElement('tr');
-            tr.append(createTd(activitydefinition.title || activitydefinition.name));
-            let td = document.createElement('td');
-            let addAction = parseHtml('<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">add_box</i>add</a>')
-            addAction.onclick = () => {
-              fetch('/api/Task/' + activitydefinition.reference + "/" + patient.reference, {method: 'PUT'})
-                .then(jsonResponseHandler)
-                .then(() => {
-                  renderTasks(patient, activitydefinitions, practitioners)
-                });
-              return false;
-            }
-            td.append(addAction);
-            td.append(' ');
-            // let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + activitydefinition.reference + '/' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>open</a>')
-            // td.append(startAction);
-            // td.append(' ');
-            let startNewAction = parseHtml('<a target="_blank" href="/kt2/launch/' + activitydefinition.reference + '/' + patient.reference + '?new=true" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>add & open</a>')
-            td.append(startNewAction);
-            td.append(' ');
-            let viewAction = parseHtml('<a href="activitydefinition.html?activityDefinition=' + activitydefinition.reference + '&patient=' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">assignment</i>view</a>')
-            td.append(viewAction);
-            tr.append(td);
-            tdata.append(tr);
-            activitydefinitions[activitydefinition.reference] = activitydefinition
-          }
-        }
-        renderTasks(patient, activitydefinitions, practitioners);
-      });
-
-  }
-
-  const renderPractitioners = (patient) => {
-    fetch('/api/Practitioner/')
-      .then(jsonResponseHandler)
-      .then((data) => {
-        const practitioners = {}
-        for (const practitioner of data) {
-          practitioners[practitioner.reference] = practitioner;
-        }
-        renderActivityDefinitions(patient, practitioners);
-      });
-  }
-
-  const renderTasks = (patient, activitydefinitions, practitioners) => {
+const renderTasks = (patient, activitydefinitions, practitioners) => {
     fetch('/api/Task/' + patient.reference)
       .then(jsonResponseHandler)
-      .then((data) => {
-        const tdata_active = document.querySelector('div.active_tasks table.data tbody');
-        const tdata_finished = document.querySelector('div.finished_tasks table.data tbody');
-        tdata_active.innerHTML = '';
-        tdata_finished.innerHTML = '';
-        for (let task of Object.values(data)) {
-          const tr = document.createElement('tr');
-            // activityDefinition: "https://staging-hapi-fhir-server.koppeltaal.headease.nl/fhir/ActivityDefinition/277/_history/1"
+      .then((data) => handleTaskFetch(data, activitydefinitions, practitioners));
+}
 
-          const activityDefinitionReference = task.activityDefinition.replace(/.*(ActivityDefinition\/[0-9]+).*/, '$1');
-          tr.append(createTd(task.reference));
-            const activitydefinition = activitydefinitions[activityDefinitionReference];
-            tr.append(createTd(activitydefinition ? activitydefinition.title || activitydefinition.name : ''));
-          tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
-          tr.append(createTd(task.status));
-          let td = document.createElement('td');
-          let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>open</a>')
-          td.append(startAction);
-          tr.append(td);
-          if (isTaskActive(task)) {
-            tdata_active.append(tr);
-          } else {
-            tdata_finished.append(tr);
-          }
-        }
-      });
-
-  }
-
-  const render = () => {
+const render = () => {
     const patient = currentUser.patient;
     if (patient) {
+        Promise.all([
+            fetch('/api/' + patient.reference),
+            fetch('/api/Practitioner/'),
+            fetch('/api/ActivityDefinition/' + patient.reference),
+            fetch('/api/Task/' + patient.reference)
+        ]).then(function (responses) {
+            // Get a JSON object from each of the responses
+            return Promise.all(responses.map(function (response) {
+                return response.json();
+            }));
+        }).then(function (data) {
+            const fetchedPatient = data[0];
+            const fetchedPractitioners = data[1];
 
-      fetch('/api/' + patient.reference)
-        .then(jsonResponseHandler)
-        .then((patient) => {
-          for (let i of Object.keys(patient)) {
-            let element = document.querySelector('.patient_' + i);
-            if (element) {
-              if (i.endsWith('Date')) {
-                let date = new Date(patient[i])
-                element.textContent = date.toLocaleDateString();
-              } else {
-                element.textContent = patient[i];
-              }
-            }
-          }
-          renderPractitioners(patient);
-
-
+            handlePatientFetch(fetchedPatient);
+            handlePractitionersFetch(fetchedPractitioners);
+            const mappedActivityDefinitions = handleActivityDefinitionFetch(data[2], fetchedPatient, fetchedPractitioners);
+            handleTaskFetch(data[3], mappedActivityDefinitions, fetchedPractitioners);
+        }).catch(function (error) {
+            // if there's an error, log it
+            console.log(error);
         });
     }
+}
 
-  }
-  document.addEventListener('DOMContentLoaded', function () {
-    fetch('/api/user/current')
-      .then(jsonResponseHandler)
-      .then((user) => {
-        if (user.loggedIn) {
-          currentUser = user;
-          render()
-          // registerFormInputListeners()
-          registerFormSubmitListeners(render);
-          enableMaterializeElements();
-          insertCurrentUser(currentUser);
-        } else {
-          let res = window.confirm("It seems you are logged out, go to the login page?")
-          if (res) {
-            window.location = '/login';
+document.addEventListener('DOMContentLoaded', function () {
+fetch('/api/user/current')
+  .then(jsonResponseHandler)
+  .then((user) => {
+    if (user.loggedIn) {
+      currentUser = user;
+      render()
+      // registerFormInputListeners()
+      registerFormSubmitListeners(render);
+      enableMaterializeElements();
+      insertCurrentUser(currentUser);
+    } else {
+      let res = window.confirm("It seems you are logged out, go to the login page?")
+      if (res) {
+        window.location = '/login';
+      }
+    }
+  });
+}, false);
+
+function handlePatientFetch(patient) {
+  for (let i of Object.keys(patient)) {
+      let element = document.querySelector('.patient_' + i);
+      if (element) {
+          if (i.endsWith('Date')) {
+              let date = new Date(patient[i])
+              element.textContent = date.toLocaleDateString();
+          } else {
+              element.textContent = patient[i];
           }
-        }
-      });
-  }, false);
+      }
+  }
+}
 
+function handlePractitionersFetch(data) {
+  const practitioners = {}
+  for (const practitioner of data) {
+      practitioners[practitioner.reference] = practitioner;
+  }
+}
+
+function handleActivityDefinitionFetch(data, patient, practitioners) {
+  const activitydefinitions = {};
+  for (var i in data) {
+      const tdata = document.querySelector('div.activitydefinitions table.data tbody');
+      tdata.innerHTML = '';
+      for (let activitydefinition of Object.values(data)) {
+          const tr = document.createElement('tr');
+          tr.append(createTd(activitydefinition.title || activitydefinition.name));
+          let td = document.createElement('td');
+          let addAction = parseHtml(
+              '<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">add_box</i>add</a>')
+          addAction.onclick = () => {
+              fetch('/api/Task/' + activitydefinition.reference + "/" + patient.reference,
+                  {method: 'PUT'})
+              .then(jsonResponseHandler)
+              .then(() => {
+                  renderTasks(patient, activitydefinitions, practitioners)
+              });
+              return false;
+          }
+          td.append(addAction);
+          td.append(' ');
+          // let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + activitydefinition.reference + '/' + patient.reference + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>open</a>')
+          // td.append(startAction);
+          // td.append(' ');
+          let startNewAction = parseHtml(
+              '<a target="_blank" href="/kt2/launch/' + activitydefinition.reference + '/'
+              + patient.reference
+              + '?new=true" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>add & open</a>')
+          td.append(startNewAction);
+          td.append(' ');
+          let viewAction = parseHtml(
+              '<a href="activitydefinition.html?activityDefinition='
+              + activitydefinition.reference + '&patient=' + patient.reference
+              + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">assignment</i>view</a>')
+          td.append(viewAction);
+          tr.append(td);
+          tdata.append(tr);
+
+          console.log(`Appending ${activitydefinitions[activitydefinition.reference]} with val ${activitydefinition}`)
+          activitydefinitions[activitydefinition.reference] = activitydefinition
+      }
+
+      return activitydefinitions;
+  }
+}
+
+function handleTaskFetch(data, activitydefinitions, practitioners) {
+
+    console.log('activitydefinitions: ', activitydefinitions);
+  const tdata_active = document.querySelector('div.active_tasks table.data tbody');
+  const tdata_finished = document.querySelector('div.finished_tasks table.data tbody');
+  tdata_active.innerHTML = '';
+  tdata_finished.innerHTML = '';
+  for (let task of Object.values(data)) {
+      const tr = document.createElement('tr');
+      // activityDefinition: "https://staging-hapi-fhir-server.koppeltaal.headease.nl/fhir/ActivityDefinition/277/_history/1"
+
+      const activityDefinitionReference = task.activityDefinition.replace(
+          /.*(ActivityDefinition\/[0-9]+).*/, '$1');
+      tr.append(createTd(task.reference));
+      const activitydefinition = activitydefinitions[activityDefinitionReference];
+      tr.append(createTd(
+          activitydefinition ? activitydefinition.title || activitydefinition.name : ''));
+      tr.append(createTd(
+          practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily
+              : '[none]'));
+      tr.append(createTd(task.status));
+      let td = document.createElement('td');
+      let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference
+          + '" class="waves-effect waves-light btn-small"><i class="small material-icons left">play_circle_outline</i>open</a>')
+      td.append(startAction);
+      tr.append(td);
+      if (isTaskActive(task)) {
+          tdata_active.append(tr);
+      } else {
+          tdata_finished.append(tr);
+      }
+  }
+}
 </script>
 </body>
 </html>
