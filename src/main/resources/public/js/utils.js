@@ -139,8 +139,8 @@ const jsonPublicResponseHandler = (response) => {
 const createHtmlTd = (...args) => {
   let td = document.createElement('td');
   args.forEach((arg) => {
-    td.innerHTML += (td.innerHTML.length > 0 ? ' ' : '');
-    td.innerHTML += arg || '';
+    if(td.children.length) td.append(' ')
+    td.append(arg);
   });
   return td;
 }

@@ -234,14 +234,14 @@
       for (let careTeam of Object.values(data)) {
           const tr = document.createElement('tr');
 
-          let participants = "";
+          let participants = [];
           careTeam.participants.forEach((participant) =>
-              participants += `<span class="new badge" data-badge-caption="${practitionerMap[participant] || relatedPersonMap[participant] || participant}"></span> `
+              participants.push(parseHtml(`<span class="new badge" data-badge-caption="${practitionerMap[participant] || relatedPersonMap[participant] || participant}"></span> `))
           );
 
           console.log(participants)
           tr.append(createTd(careTeam.name));
-          tr.append(createHtmlTd(participants));
+          tr.append(createHtmlTd(...participants));
           let td = document.createElement('td');
           let deleteAction = parseHtml(
               '<a href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">delete_forever</i>delete</a>')
