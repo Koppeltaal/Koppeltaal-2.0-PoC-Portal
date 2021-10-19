@@ -126,7 +126,7 @@
           tdata.innerHTML = '';
           for (let activitydefinition of Object.values(data)) {
             const tr = document.createElement('tr');
-            tr.append(createTd(activitydefinition.title));
+            tr.append(createTd(activitydefinition.title || activitydefinition.name));
             let td = document.createElement('td');
             let addAction = parseHtml('<a target="_blank" href="#" class="waves-effect waves-light btn-small"><i class="small material-icons left">add_box</i>add</a>')
             addAction.onclick = () => {
@@ -179,8 +179,12 @@
         tdata_finished.innerHTML = '';
         for (let task of Object.values(data)) {
           const tr = document.createElement('tr');
+            // activityDefinition: "https://staging-hapi-fhir-server.koppeltaal.headease.nl/fhir/ActivityDefinition/277/_history/1"
+
+          const activityDefinitionReference = task.activityDefinition.replace(/.*(ActivityDefinition\/[0-9]+).*/, '$1');
           tr.append(createTd(task.reference));
-          tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
+            const activitydefinition = activitydefinitions[activityDefinitionReference];
+            tr.append(createTd(activitydefinition ? activitydefinition.title || activitydefinition.name : ''));
           tr.append(createTd(practitioners[task.practitioner] ? practitioners[task.practitioner].nameFamily : '[none]'));
           tr.append(createTd(task.status));
           let td = document.createElement('td');
