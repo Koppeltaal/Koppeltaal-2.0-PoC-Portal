@@ -266,7 +266,7 @@
       fetch('/api/codesystem?codeSystem=' + encodeURIComponent(codeSystem), {cache: "force-cache"})
         .then(jsonResponseHandler)
         .then((data) => {
-          const codeSystemUri = data['uri'];
+          const codeSystemUri = data['url'];
           relationshipEl.append(parseHtml('<option value="">[NONE]</option>'));
           let concepts = data['concept'];
           concepts.forEach((concept) => {
