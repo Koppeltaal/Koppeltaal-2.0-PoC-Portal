@@ -37,7 +37,10 @@ const formToJson = (form) => {
     if (element.selectedOptions) { //multi-select
       for (let i = 0; i < element.selectedOptions.length; i++) {
         value = element.selectedOptions[i].value;
-        if (i === 0) {
+        if(element.selectedOptions.length === 1) {
+          json[element.name] = writeValue(value, element.name);
+        }
+        else if (i === 0) {
           json[element.name] = [writeValue(value, element.name)];
         } else {
           json[element.name].push(writeValue(value, element.name));
