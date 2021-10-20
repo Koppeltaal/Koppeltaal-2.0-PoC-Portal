@@ -152,8 +152,6 @@ const render = () => {
             const mappedActivityDefinitions = handleActivityDefinitionFetch(data[3]);
 
             handleTaskFetch(data[4], mappedActivityDefinitions);
-
-            enableMaterializeElements();
         }).catch(function (error) {
             // if there's an error, log it
             console.log(error);
@@ -270,9 +268,9 @@ function handleTaskFetch(data, activitydefinitionMap) {
       const observers = task.observerReferences;
       const selectHtml = parseHtml(
           `<select multiple data-task="${task.reference}" onchange="selectCareTeam(this)">
-            <option ${!observers.length  && 'selected'} disabled>No group chosen</option>
+            <option ${!observers.length ? 'selected' : ''} disabled>No group chosen</option>
             ${(careTeams.map(careTeam =>
-              `<option ${observers.includes(careTeam.reference) && 'selected'} value="${careTeam.reference}">${careTeam.name}</option>`)
+              `<option ${observers.includes(careTeam.reference) ? 'selected' : ''} value="${careTeam.reference}">${careTeam.name}</option>`)
             )}
           </select>`);
       const groupSelect = createHtmlTd(selectHtml)
@@ -291,6 +289,7 @@ function handleTaskFetch(data, activitydefinitionMap) {
           tdata_finished.append(tr);
       }
   }
+    enableMaterializeElements();
 }
 
 function selectCareTeam(select) {
