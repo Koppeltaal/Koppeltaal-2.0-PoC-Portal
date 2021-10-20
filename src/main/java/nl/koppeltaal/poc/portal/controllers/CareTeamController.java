@@ -19,20 +19,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.CareTeamDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.CareTeamDtoConverter;
-import nl.koppeltaal.spring.boot.starter.smartservice.dto.PatientDto;
-import nl.koppeltaal.spring.boot.starter.smartservice.dto.RelatedPersonDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.CareTeamFhirClientService;
 import org.hl7.fhir.r4.model.CareTeam;
-import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.RelatedPerson;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -80,10 +75,5 @@ public class CareTeamController extends BaseResourceController<CareTeamDto, Care
 		final CareTeam convertedCareTeam = dtoConverter.convert(dto);
 		convertedCareTeam.setSubject(new Reference(userReference));
 		return dtoConverter.convert(fhirClientService.storeResource(convertedCareTeam));
-	}
-
-	private String getUserReference(Patient user) {
-		IdType id = user.getIdElement();
-		return id.getResourceType()  + "/" + id.toUnqualifiedVersionless().getIdPart();
 	}
 }

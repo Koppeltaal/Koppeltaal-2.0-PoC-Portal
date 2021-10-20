@@ -18,13 +18,16 @@ import nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDtoConverter;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.ActivityDefinitionFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.TaskFhirClientService;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.ActivityDefinition;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Task;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -75,6 +78,37 @@ public class TasksController extends BaseResourceController<TaskDto, Task> {
 			rv.add(dtoConverter.convert(task));
 		}
 		return rv;
+	}
+
+	@PutMapping("setObserverTeam")
+	public TaskDto assignTaskToCareTeam(HttpSession session, @RequestParam String taskReference, @RequestParam List<String> careTeamReferences) {
+		Task task = securityCheckSetCareTeam(session, taskReference);
+
+		careTeamReferences.forEach(careTeamReference ->
+			TaskDtoConverter.addObserverExtension(task, careTeamReference)
+		);
+		try {
+			return dtoConverter.convert(fhirClientService.storeResource(task));
+		} catch (IOException e) {
+			throw new RuntimeException("Something went wrong while assigning a Task.observer", e);
+		}
+	}
+
+	private Task securityCheckSetCareTeam(HttpSession session, String taskReference) {
+		Object user = session.getAttribute("user");
+		if(!(user instanceof Patient)) throw new SecurityException("Not allowed to assign a CareTeam");
+		Patient patient = (Patient) user;
+
+		try {
+			final Task resourceByReference = fhirClientService.getResourceByReference(taskReference);
+			if(!StringUtils.equals(resourceByReference.getOwner().getReference(), getUserReference(patient))) {
+				throw new SecurityException("Cannot assign CareTeams to someone else's Task");
+			}
+
+			return  resourceByReference;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 

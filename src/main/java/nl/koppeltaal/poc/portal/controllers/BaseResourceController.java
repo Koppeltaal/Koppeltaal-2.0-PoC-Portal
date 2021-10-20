@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import nl.koppeltaal.poc.utils.UrlUtils;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.BaseDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.DtoConverter;
 import nl.koppeltaal.spring.boot.starter.smartservice.exception.EnitityNotFoundException;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.BaseFhirClientCrudService;
-import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.BaseFhirClientService;
 import org.hl7.fhir.r4.model.DomainResource;
+import org.hl7.fhir.r4.model.IdType;
+import org.hl7.fhir.r4.model.Patient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,6 +59,11 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 	@RequestMapping(method = RequestMethod.PUT)
 	public Dto put(HttpSession httpSession, HttpServletRequest request, @RequestBody Dto dto) throws IOException {
 		return dtoConverter.convert(fhirClientService.storeResource(dtoConverter.convert(dto)));
+	}
+
+	String getUserReference(Patient user) {
+		IdType id = user.getIdElement();
+		return id.getResourceType()  + "/" + id.toUnqualifiedVersionless().getIdPart();
 	}
 
 }
