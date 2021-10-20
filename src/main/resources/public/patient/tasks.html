@@ -295,7 +295,7 @@ function handleTaskFetch(data, activitydefinitionMap) {
 
 function selectCareTeam(select) {
 
-    let url = `/api/Task/setObserverTeam?taskReference=${select.getAttribute('data-task')}`;
+    let url = `/api/Task/setObserverTeams?taskReference=${select.getAttribute('data-task')}`;
 
     for (let i = 0; i < select.selectedOptions.length; i++) {
         url += `&careTeamReferences=${select.selectedOptions[i].value}`;

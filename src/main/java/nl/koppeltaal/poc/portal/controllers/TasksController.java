@@ -8,10 +8,13 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
+import static nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDtoConverter.KT2_PROFILE_EXTENSION__CARE_TEAM__OBSERVER;
+
 import com.auth0.jwk.JwkException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDtoConverter;
@@ -20,6 +23,7 @@ import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirCl
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.TaskFhirClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.ActivityDefinition;
+import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Task;
@@ -80,13 +84,21 @@ public class TasksController extends BaseResourceController<TaskDto, Task> {
 		return rv;
 	}
 
-	@PutMapping("setObserverTeam")
-	public TaskDto assignTaskToCareTeam(HttpSession session, @RequestParam String taskReference, @RequestParam List<String> careTeamReferences) {
+	@PutMapping("setObserverTeams")
+	public TaskDto setObserverTeams(HttpSession session, @RequestParam String taskReference, @RequestParam(required = false) List<String> careTeamReferences) {
 		Task task = securityCheckSetCareTeam(session, taskReference);
 
-		careTeamReferences.forEach(careTeamReference ->
-			TaskDtoConverter.addObserverExtension(task, careTeamReference)
-		);
+		final List<Extension> extensionsToKeep = task.getExtensionsByUrl(KT2_PROFILE_EXTENSION__CARE_TEAM__OBSERVER).stream()
+				.filter(extension -> !StringUtils.equals(KT2_PROFILE_EXTENSION__CARE_TEAM__OBSERVER, extension.getUrl()))
+				.collect(Collectors.toList());
+		task.setExtension(extensionsToKeep);
+
+		if(careTeamReferences != null) {
+			careTeamReferences.forEach(careTeamReference ->
+					TaskDtoConverter.addObserverExtension(task, careTeamReference)
+			);
+		}
+
 		try {
 			return dtoConverter.convert(fhirClientService.storeResource(task));
 		} catch (IOException e) {
