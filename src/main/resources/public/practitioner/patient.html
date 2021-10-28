@@ -190,6 +190,7 @@
       .then(jsonResponseHandler)
       .then((data) => {
         for (var i in data) {
+          const activityDefinitionReference = task.activityDefinition.replace(/.*(ActivityDefinition\/[0-9]+).*/, '$1');
           const tdata_active = document.querySelector('div.active_tasks table.data tbody');
           const tdata_finished = document.querySelector('div.finished_tasks table.data tbody');
           tdata_active.innerHTML = '';
@@ -197,7 +198,9 @@
           for (let task of Object.values(data)) {
             const tr = document.createElement('tr');
             tr.append(createTd(task.reference));
-            tr.append(createTd(activitydefinitions[task.activityDefinition] ? activitydefinitions[task.activityDefinition].title : ''));
+              const activitydefinition = activitydefinitions[activityDefinitionReference];
+              tr.append(createTd(
+                  activitydefinition ? activitydefinition.title || activitydefinition.name : ''));
             tr.append(createTd(task.status));
             let td = document.createElement('td');
             let startAction = parseHtml('<a target="_blank" href="/kt2/launch/' + task.reference + '" class="btn-small waves-effect waves-light cyan"><i class="small material-icons left">play_circle_outline</i>open</a>')

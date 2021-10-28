@@ -61,8 +61,8 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 		return dtoConverter.convert(fhirClientService.storeResource(dtoConverter.convert(dto)));
 	}
 
-	String getUserReference(Patient user) {
-		IdType id = user.getIdElement();
+	String getReference(DomainResource resource) {
+		IdType id = resource.getIdElement();
 		return id.getResourceType()  + "/" + id.toUnqualifiedVersionless().getIdPart();
 	}
 

@@ -50,7 +50,7 @@ public class CareTeamController extends BaseResourceController<CareTeamDto, Care
 		} else if (user instanceof Patient) {
 			List<CareTeamDto> rv = new ArrayList<>();
 
-			String reference = getUserReference((Patient) user);
+			String reference = getReference((Patient) user);
 			ICriterion<ReferenceClientParam> criterion = CareTeam.SUBJECT.hasId(reference);
 			List<CareTeam> relatedPersons = fhirClientService.getResources( criterion);
 			for (CareTeam careTeam : relatedPersons) {
@@ -71,7 +71,7 @@ public class CareTeamController extends BaseResourceController<CareTeamDto, Care
 			throw new SecurityException("Only Patients are allowed to create CareTeams");
 		}
 
-		final String userReference = getUserReference((Patient) user);
+		final String userReference = getReference((Patient) user);
 		final CareTeam convertedCareTeam = dtoConverter.convert(dto);
 		convertedCareTeam.setSubject(new Reference(userReference));
 		return dtoConverter.convert(fhirClientService.storeResource(convertedCareTeam));
