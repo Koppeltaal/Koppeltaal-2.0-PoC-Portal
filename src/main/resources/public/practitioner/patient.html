@@ -190,12 +190,12 @@
       .then(jsonResponseHandler)
       .then((data) => {
         for (var i in data) {
-          const activityDefinitionReference = task.activityDefinition.replace(/.*(ActivityDefinition\/[0-9]+).*/, '$1');
           const tdata_active = document.querySelector('div.active_tasks table.data tbody');
           const tdata_finished = document.querySelector('div.finished_tasks table.data tbody');
           tdata_active.innerHTML = '';
           tdata_finished.innerHTML = '';
           for (let task of Object.values(data)) {
+            const activityDefinitionReference = task.activityDefinition.replace(/.*(ActivityDefinition\/[0-9]+).*/, '$1');
             const tr = document.createElement('tr');
             tr.append(createTd(task.reference));
               const activitydefinition = activitydefinitions[activityDefinitionReference];
