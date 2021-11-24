@@ -8,7 +8,7 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
-import static nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDtoConverter.KT2_PROFILE_EXTENSION__CARE_TEAM__OBSERVER;
+import static nl.koppeltaal.spring.boot.starter.smartservice.constants.FhirConstant.KT2_EXTENSION__CARE_TEAM__OBSERVER;
 
 import ca.uhn.fhir.model.api.IQueryParameterType;
 import ca.uhn.fhir.rest.param.TokenParam;
@@ -136,8 +136,8 @@ public class TasksController extends BaseResourceController<TaskDto, Task> {
 	public TaskDto setObserverTeams(HttpSession session, @RequestParam String taskReference, @RequestParam(required = false) List<String> careTeamReferences) {
 		Task task = securityCheckSetCareTeam(session, taskReference);
 
-		final List<Extension> extensionsToKeep = task.getExtensionsByUrl(KT2_PROFILE_EXTENSION__CARE_TEAM__OBSERVER).stream()
-				.filter(extension -> !StringUtils.equals(KT2_PROFILE_EXTENSION__CARE_TEAM__OBSERVER, extension.getUrl()))
+		final List<Extension> extensionsToKeep = task.getExtensionsByUrl(KT2_EXTENSION__CARE_TEAM__OBSERVER).stream()
+				.filter(extension -> !StringUtils.equals(KT2_EXTENSION__CARE_TEAM__OBSERVER, extension.getUrl()))
 				.collect(Collectors.toList());
 		task.setExtension(extensionsToKeep);
 

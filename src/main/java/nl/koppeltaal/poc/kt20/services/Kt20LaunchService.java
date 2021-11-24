@@ -1,5 +1,6 @@
 package nl.koppeltaal.poc.kt20.services;
 
+import static nl.koppeltaal.spring.boot.starter.smartservice.constants.FhirConstant.KT2_EXTENSION__ENDPOINT;
 import static nl.koppeltaal.spring.boot.starter.smartservice.utils.ResourceUtils.getReference;
 
 import com.auth0.jwk.JwkException;
@@ -18,7 +19,6 @@ import nl.koppeltaal.poc.kt20.configuration.Kt20ClientConfiguration;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
 import nl.koppeltaal.poc.kt20.valueobjects.Task;
 import nl.koppeltaal.poc.portal.controllers.SessionTokenStorage;
-import nl.koppeltaal.spring.boot.starter.smartservice.dto.ActivityDefinitionDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.ActivityDefinitionFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.EndpointFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.LocationFhirClientService;
@@ -245,7 +245,7 @@ public class Kt20LaunchService {
 
 	private String getUrlForActivityDefinition(ActivityDefinition fhirDefinition) throws IOException, JwkException {
 
-		final List<Extension> endpointExtension = fhirDefinition.getExtensionsByUrl(ActivityDefinitionDto.EXTENSION__ENDPOINT);
+		final List<Extension> endpointExtension = fhirDefinition.getExtensionsByUrl(KT2_EXTENSION__ENDPOINT);
 
 		if(endpointExtension.isEmpty()) {
 			throw new IllegalStateException("No endpoint found");
