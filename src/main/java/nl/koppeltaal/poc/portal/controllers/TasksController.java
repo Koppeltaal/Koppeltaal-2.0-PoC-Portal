@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.TaskDtoConverter;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.context.TraceContext;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.ActivityDefinitionFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.CareTeamFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
@@ -121,7 +122,8 @@ public class TasksController extends BaseResourceController<TaskDto, Task> {
 		criteria.put("subject", Collections.singletonList(subjectParam));
 
 		//all careteams for the requested patient where the logged in user is a participant
-		final List<String> requestingUserCareTeams = careTeamService.getResources(criteria).stream()
+		TraceContext traceContext = new TraceContext();
+		final List<String> requestingUserCareTeams = careTeamService.getResources(criteria, traceContext).stream()
 				.map(this::getReference)
 				.collect(Collectors.toList());
 
