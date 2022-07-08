@@ -9,12 +9,10 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import nl.koppeltaal.poc.oidc.service.OidcClientService;
 import nl.koppeltaal.poc.utils.UrlUtils;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.AuthorizationUrlDto;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.context.TraceContext;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PractitionerFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.RelatedPersonFhirClientService;
@@ -28,6 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 /**
  *
@@ -50,7 +52,7 @@ public class LoginController {
 
 	@RequestMapping("code_response")
 	public String codeResponse(HttpSession httpSession, HttpServletRequest request, String code, String state) throws IOException, JwkException {
-		String sessionState = (String)httpSession.getAttribute("state");
+		String sessionState = (String) httpSession.getAttribute("state");
 		if (StringUtils.isEmpty(sessionState)) {
 			return "redirect:/login";
 		}
@@ -58,13 +60,13 @@ public class LoginController {
 		SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
 
 
-
 		oidcClientService.getIdToken(code, UrlUtils.getServerUrl("/code_response", request), tokenStorage);
 
 		String userReference = oidcClientService.getUserIdFromCredentials(tokenStorage);
-		Practitioner practitioner = practitionerFhirClientService.getResourceByIdentifier(userReference);
-		Patient patient = patientFhirClientService.getResourceByIdentifier(userReference);
-		RelatedPerson relatedPerson = relatedPersonFhirClientService.getResourceByIdentifier(userReference);
+		TraceContext traceContext = new TraceContext();
+		Practitioner practitioner = practitionerFhirClientService.getResourceByIdentifier(userReference, traceContext);
+		Patient patient = patientFhirClientService.getResourceByIdentifier(userReference, traceContext);
+		RelatedPerson relatedPerson = relatedPersonFhirClientService.getResourceByIdentifier(userReference, traceContext);
 
 		if (practitioner != null) {
 			httpSession.setAttribute("user", practitioner);

@@ -1,22 +1,20 @@
 package nl.koppeltaal.poc.portal.controllers;
 
 import com.auth0.jwk.JwkException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.BaseDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.DtoConverter;
 import nl.koppeltaal.spring.boot.starter.smartservice.exception.EnitityNotFoundException;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.context.TraceContext;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.BaseFhirClientCrudService;
 import org.hl7.fhir.r4.model.DomainResource;
 import org.hl7.fhir.r4.model.IdType;
-import org.hl7.fhir.r4.model.Patient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -49,7 +47,8 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 	@RequestMapping(method = RequestMethod.GET)
 	public List<Dto> list(HttpSession httpSession) throws IOException, JwkException {
 		List<Dto> rv = new ArrayList<>();
-		List<Resource> resources = fhirClientService.getResources();
+		TraceContext traceContext = new TraceContext();
+		List<Resource> resources = fhirClientService.getResources(traceContext);
 		for (Resource resource : resources) {
 			rv.add(dtoConverter.convert(resource));
 		}
