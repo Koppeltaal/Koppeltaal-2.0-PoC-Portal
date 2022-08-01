@@ -53,6 +53,8 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
                 .csrf()
                     .disable()
                 .authorizeRequests()
+                .antMatchers("/.well-known/*")
+                    .permitAll()
                 .anyRequest()
                     .hasAnyRole("patient", "practitioner", "relatedPerson")
                 .and()
