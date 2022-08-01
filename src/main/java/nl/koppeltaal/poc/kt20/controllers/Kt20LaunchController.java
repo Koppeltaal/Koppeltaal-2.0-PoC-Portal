@@ -1,12 +1,7 @@
 package nl.koppeltaal.poc.kt20.controllers;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import javax.servlet.http.HttpSession;
 import nl.koppeltaal.poc.kt20.services.Kt20LaunchService;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
-import nl.koppeltaal.poc.portal.controllers.SessionTokenStorage;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
@@ -18,6 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  *
@@ -37,7 +37,6 @@ public class Kt20LaunchController {
 	@RequestMapping(value = {"launch/Task/{taskId}"}, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String launchTask(HttpSession session, @PathVariable("taskId") String taskId, boolean isNew) throws Exception {
-		SessionTokenStorage tokenStorage = new SessionTokenStorage(session);
 		Object usr = session.getAttribute("user");
 		RelatedPerson relatedPerson = null;
 		Practitioner practitioner = null;
@@ -53,7 +52,7 @@ public class Kt20LaunchController {
 		if (practitioner != null) {
 			launchData = kt20LaunchService.launchTaskPractitioner(practitioner, taskId);
 		} else if (relatedPerson != null) {
-			launchData = kt20LaunchService.launchTaskRelatedPerson(tokenStorage, relatedPerson, taskId);
+			launchData = kt20LaunchService.launchTaskRelatedPerson(relatedPerson, taskId);
 		} else if (patient != null) {
 			launchData = kt20LaunchService.launchTaskPatient(patient, taskId);
 		}
@@ -64,7 +63,6 @@ public class Kt20LaunchController {
 	@RequestMapping(value = {"launch/ActivityDefinition/{treatmentId}/Patient/{patientId}", "launch/{treatmentId}"}, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public String launch(HttpSession session, @PathVariable("treatmentId") String treatmentId, @PathVariable("patientId") String patientId, @RequestParam(value = "new", required = false) boolean isNew) throws Exception {
-		SessionTokenStorage tokenStorage = new SessionTokenStorage(session);
 		Object usr = session.getAttribute("user");
 		RelatedPerson relatedPerson = null;
 		Practitioner practitioner = null;

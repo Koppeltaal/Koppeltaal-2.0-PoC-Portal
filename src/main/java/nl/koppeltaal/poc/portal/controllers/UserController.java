@@ -8,10 +8,6 @@
 
 package nl.koppeltaal.poc.portal.controllers;
 
-import com.auth0.jwk.JwkException;
-import java.io.IOException;
-import javax.servlet.http.HttpSession;
-import nl.koppeltaal.poc.oidc.service.OidcClientService;
 import nl.koppeltaal.poc.portal.dto.UserDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.PatientDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.PatientDtoConverter;
@@ -20,12 +16,18 @@ import nl.koppeltaal.spring.boot.starter.smartservice.dto.PractitionerDtoConvert
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.RelatedPersonDto;
 import nl.koppeltaal.spring.boot.starter.smartservice.dto.RelatedPersonDtoConverter;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PractitionerFhirClientService;
+import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.RelatedPersonFhirClientService;
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.RelatedPerson;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -34,14 +36,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user")
 public class UserController {
 
-	final OidcClientService oidcClientService;
 	final PatientDtoConverter patientDtoConverter;
 	final PractitionerDtoConverter practitionerDtoConverter;
 	final RelatedPersonDtoConverter relatedPersonDtoConverter;
 	final PatientFhirClientService patientFhirClientService;
 
-	public UserController(OidcClientService oidcClientService, PatientDtoConverter patientDtoConverter, PractitionerDtoConverter practitionerDtoConverter, RelatedPersonDtoConverter relatedPersonDtoConverter, PatientFhirClientService patientFhirClientService) {
-		this.oidcClientService = oidcClientService;
+
+	public UserController(PatientDtoConverter patientDtoConverter, PractitionerDtoConverter practitionerDtoConverter, RelatedPersonDtoConverter relatedPersonDtoConverter, PatientFhirClientService patientFhirClientService, PractitionerFhirClientService practitionerFhirClientService, RelatedPersonFhirClientService relatedPersonFhirClientService) {
 		this.patientDtoConverter = patientDtoConverter;
 		this.practitionerDtoConverter = practitionerDtoConverter;
 		this.relatedPersonDtoConverter = relatedPersonDtoConverter;
@@ -49,12 +50,12 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "current", method = RequestMethod.GET)
-	public UserDto getUser(HttpSession httpSession) throws JwkException, IOException {
+	public UserDto getUser(KeycloakAuthenticationToken token, HttpSession httpSession) {
 		UserDto rv = new UserDto();
-		SessionTokenStorage tokenStorage = new SessionTokenStorage(httpSession);
-		if (tokenStorage.hasIdToken()) {
-			rv.setUserId(oidcClientService.getUserIdFromCredentials(tokenStorage));
-			rv.setUserIdentifier(oidcClientService.getUserIdentifierFromCredentials(tokenStorage));
+		String principalName = token.getName();
+		if (StringUtils.isNotBlank(principalName)) {
+			rv.setUserId(principalName);
+			rv.setUserIdentifier(principalName);
 			rv.setLoggedIn(true);
 		} else {
 			rv.setLoggedIn(false);

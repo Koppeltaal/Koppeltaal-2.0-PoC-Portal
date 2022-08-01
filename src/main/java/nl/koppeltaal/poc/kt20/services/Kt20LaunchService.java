@@ -6,7 +6,6 @@ import nl.koppeltaal.poc.kt20.KeyUtils;
 import nl.koppeltaal.poc.kt20.configuration.Kt20ClientConfiguration;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
 import nl.koppeltaal.poc.kt20.valueobjects.Task;
-import nl.koppeltaal.poc.portal.controllers.SessionTokenStorage;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.*;
 import nl.koppeltaal.springbootstarterjwks.config.JwksConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -131,7 +130,7 @@ public class Kt20LaunchService {
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
 	}
 
-	public LaunchData launchTaskRelatedPerson(SessionTokenStorage tokenStorage, RelatedPerson relatedPerson, String taskId) throws IOException, JwkException, GeneralSecurityException {
+	public LaunchData launchTaskRelatedPerson(RelatedPerson relatedPerson, String taskId) throws IOException, JwkException, GeneralSecurityException {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
 		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(fhirTask.getInstantiatesCanonical());
 		Task task = buildTask(fhirTask);
