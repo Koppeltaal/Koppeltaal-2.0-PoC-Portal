@@ -2,6 +2,7 @@ package nl.koppeltaal.poc.kt20.controllers;
 
 import nl.koppeltaal.poc.kt20.services.Kt20LaunchService;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
+import nl.koppeltaal.spring.boot.starter.smartservice.configuration.SmartServiceConfiguration;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
@@ -29,9 +30,12 @@ public class Kt20LaunchController {
 
 	final PatientFhirClientService patientFhirClientService;
 
-	public Kt20LaunchController(Kt20LaunchService kt20LaunchService, PatientFhirClientService patientFhirClientService) {
+	final SmartServiceConfiguration smartServiceConfiguration;
+
+	public Kt20LaunchController(Kt20LaunchService kt20LaunchService, PatientFhirClientService patientFhirClientService, SmartServiceConfiguration smartServiceConfiguration) {
 		this.kt20LaunchService = kt20LaunchService;
 		this.patientFhirClientService = patientFhirClientService;
+		this.smartServiceConfiguration = smartServiceConfiguration;
 	}
 
 	@RequestMapping(value = {"launch/Task/{taskId}"}, produces = MediaType.TEXT_HTML_VALUE)
@@ -97,6 +101,8 @@ public class Kt20LaunchController {
 				"<body onload=\"document.forms[0].submit();\">\n" +
 				"<form action=\"" + launchData.getUrl() + "\" method=\"" + method + "\">\n" +
 				"<input type=\"hidden\" name=\"token\" value=\"" + encodeToken(launchData.getToken()) + "\"/>\n" +
+				"<input type=\"hidden\" name=\"launch\" value=\"" + encodeToken(launchData.getToken()) + "\"/>\n" +
+				"<input type=\"hidden\" name=\"iss\" value=\"" + smartServiceConfiguration.getFhirServerUrl() + "\"/>\n" +
 				"</form>\n" +
 				"</body>\n" +
 				"</html>";
