@@ -189,7 +189,19 @@ public class Kt20LaunchService {
 	protected String getLaunchToken(Task task, ActivityDefinition definition, String launchingUserReference) throws GeneralSecurityException {
 		try {
 			JwtClaims claims = new JwtClaims();
-			claims.setClaim("task", toMap(task));
+			if (kt20ClientConfiguration.isUseHti2()) {
+				claims.setClaim("resource", task.getResourceType() + "/" + task.getId());
+				claims.setClaim("definition", task.getInstantiatesCanonical());
+				claims.setClaim("intent", task.getIntent());
+				Task.User owner = task.getOwner();
+				if (!StringUtils.equals(launchingUserReference, owner.getReference())) {
+					claims.setClaim("patient", owner.getReference());
+				}
+			} else {
+				claims.setClaim("task", toMap(task));
+			}
+
+
 			claims.setSubject(launchingUserReference);
 			claims.setIssuedAt(NumericDate.now());
 			claims.setAudience(getUrlForActivityDefinition(definition));

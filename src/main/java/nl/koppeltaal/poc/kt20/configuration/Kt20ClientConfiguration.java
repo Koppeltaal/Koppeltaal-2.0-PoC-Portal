@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class Kt20ClientConfiguration {
 	String publicKey;
 	boolean useJwe = false;
+	boolean useHti2 = true;
 
 	public String getPublicKey() {
 		return publicKey;
@@ -18,6 +19,14 @@ public class Kt20ClientConfiguration {
 
 	public void setPublicKey(String publicKey) {
 		this.publicKey = publicKey;
+	}
+
+	public boolean isUseHti2() {
+		return useHti2;
+	}
+
+	public void setUseHti2(boolean useHti2) {
+		this.useHti2 = useHti2;
 	}
 
 	public boolean isUseJwe() {
