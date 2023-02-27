@@ -71,14 +71,14 @@ public class AddFhirUserToSessionFilter extends GenericFilterBean {
         String username = securityContext.getToken().getPreferredUsername();
         Practitioner practitioner = practitionerFhirClientService.getResourceByIdentifier(username, traceContext);
         Patient patient = patientFhirClientService.getResourceByIdentifier(username, traceContext);
-        RelatedPerson relatedPerson = relatedPersonFhirClientService.getResourceByIdentifier(username, traceContext);
+//        RelatedPerson relatedPerson = relatedPersonFhirClientService.getResourceByIdentifier(username, traceContext);
 
         if (practitioner != null) {
             session.setAttribute("user", practitioner);
         } else if (patient != null) {
             session.setAttribute("user", patient);
-        } else if (relatedPerson != null) {
-            session.setAttribute("user", relatedPerson);
+//        } else if (relatedPerson != null) {
+//            session.setAttribute("user", relatedPerson);
         }
     }
 }
