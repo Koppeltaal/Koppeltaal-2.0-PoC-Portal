@@ -8,7 +8,7 @@
 
 <html lang="en" >
 <head>
-    <title>Het Portaal - relatedpersons</title>
+    <title>Het Portaal - CareTeams</title>
     <link rel="icon" type="image/svg+xml" href="../icons/public-24px.svg">
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -30,7 +30,7 @@
         <ul class="tabs tabs-transparent">
             <li class="tab"><a href="index.html">Main</a></li>
             <li class="tab"><a href="tasks.html">Tasks</a></li>
-            <li class="tab"><a href="relatedpersons.html">Friends & Family</a></li>
+<!--            <li class="tab"><a href="relatedpersons.html">Friends & Family</a></li>-->
             <li class="tab"><a href="careteams.html" class="active">Groups</a></li>
             <li class="tab right"><a href="/sso/logout" class="user"></a></li>
         </ul>
@@ -138,8 +138,8 @@
 
   Promise.all([
       fetch('/api/Practitioner'),
-      fetch('/api/RelatedPerson'),
       fetch('/api/CareTeam')
+      // fetch('/api/RelatedPerson'),
   ]).then(function (responses) {
       // Get a JSON object from each of the responses
       return Promise.all(responses.map(function (response) {
@@ -147,8 +147,8 @@
       }));
   }).then(function (data) {
       fetchPractitionerHandler(data[0])
-      fetchRelatedPersonHandler(data[1])
-      fetchCareTeamHandler(data[2])
+      fetchCareTeamHandler(data[1])
+      // fetchRelatedPersonHandler(data[2])
 
       selectInstance = M.FormSelect.init(document.querySelectorAll('select'));
   }).catch(function (error) {

@@ -71,6 +71,8 @@ public class CareTeamController extends BaseResourceController<CareTeamDto, Care
 			throw new SecurityException("Only Patients are allowed to create CareTeams");
 		}
 
+		dto.setStatus(CareTeam.CareTeamStatus.ACTIVE);
+
 		final String userReference = getReference((Patient) user);
 		final CareTeam convertedCareTeam = dtoConverter.convert(dto);
 		convertedCareTeam.setSubject(new Reference(userReference));
