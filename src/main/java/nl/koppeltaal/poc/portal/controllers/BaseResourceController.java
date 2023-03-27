@@ -30,8 +30,8 @@ public class BaseResourceController<Dto extends BaseDto, Resource extends Domain
 	}
 
 	@RequestMapping(value = "{reference}", method = RequestMethod.DELETE)
-	public void delete(HttpSession httpSession, @PathVariable String reference) throws IOException, JwkException {
-		fhirClientService.deleteResourceByReference(reference);
+	public void delete(HttpSession httpSession, @PathVariable String reference) throws IOException {
+		fhirClientService.deleteByMarkingAsEndOfLife(reference);
 	}
 
 	@RequestMapping(value = "{reference}", method = RequestMethod.GET)
