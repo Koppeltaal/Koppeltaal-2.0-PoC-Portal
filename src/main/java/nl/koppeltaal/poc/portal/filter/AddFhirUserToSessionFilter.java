@@ -6,11 +6,9 @@ import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PractitionerF
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.RelatedPersonFhirClientService;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.RelatedPerson;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.KeycloakSecurityContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
@@ -43,7 +41,7 @@ public class AddFhirUserToSessionFilter extends GenericFilterBean {
             return;
         }
 
-        KeycloakSecurityContext keycloakSecurityContext = getKeycloakPrincipal();
+        String keycloakSecurityContext = getPreferredUsername();
         if(keycloakSecurityContext != null) {
             addFhirUserToSession(keycloakSecurityContext, session);
         }
@@ -51,34 +49,30 @@ public class AddFhirUserToSessionFilter extends GenericFilterBean {
         filterChain.doFilter(request, response);
     }
 
-    private KeycloakSecurityContext getKeycloakPrincipal() {
+    private String getPreferredUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null) {
             Object principal = authentication.getPrincipal();
 
-            if (principal instanceof KeycloakPrincipal) {
-                return KeycloakPrincipal.class.cast(principal).getKeycloakSecurityContext();
+            if (principal instanceof OidcUser) {
+                return OidcUser.class.cast(principal).getPreferredUsername();
             }
         }
 
         return null;
     }
 
-    private void addFhirUserToSession(KeycloakSecurityContext securityContext, HttpSession session) {
+    private void addFhirUserToSession(String username, HttpSession session) {
 
         TraceContext traceContext = new TraceContext();
-        String username = securityContext.getToken().getPreferredUsername();
         Practitioner practitioner = practitionerFhirClientService.getResourceByIdentifier(username, traceContext);
         Patient patient = patientFhirClientService.getResourceByIdentifier(username, traceContext);
-//        RelatedPerson relatedPerson = relatedPersonFhirClientService.getResourceByIdentifier(username, traceContext);
 
         if (practitioner != null) {
             session.setAttribute("user", practitioner);
         } else if (patient != null) {
             session.setAttribute("user", patient);
-//        } else if (relatedPerson != null) {
-//            session.setAttribute("user", relatedPerson);
         }
     }
 }

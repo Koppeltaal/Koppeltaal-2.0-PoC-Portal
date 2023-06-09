@@ -22,7 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.RelatedPerson;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,9 +51,10 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "current", method = RequestMethod.GET)
-	public UserDto getUser(KeycloakAuthenticationToken token, HttpSession httpSession) {
+	public UserDto getUser(Authentication authentication, HttpSession httpSession) {
+		OidcUser oidcUser = (OidcUser) authentication;
 		UserDto rv = new UserDto();
-		String principalName = token.getName();
+		String principalName = oidcUser.getName();
 		if (StringUtils.isNotBlank(principalName)) {
 			rv.setUserId(principalName);
 			rv.setUserIdentifier(principalName);

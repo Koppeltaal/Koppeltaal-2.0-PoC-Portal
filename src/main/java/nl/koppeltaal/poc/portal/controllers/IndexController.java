@@ -10,7 +10,7 @@ package nl.koppeltaal.poc.portal.controllers;
 
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -23,14 +23,14 @@ import javax.servlet.http.HttpSession;
 public class IndexController {
 
 	@RequestMapping(value = {"/"})
-	public String index(HttpSession httpSession, KeycloakAuthenticationToken token) {
+	public String index(HttpSession httpSession, Authentication authentication) {
 
 		if (httpSession.getAttribute("user") instanceof Patient) {
 			return "redirect:patient/index.html";
 		} else if (httpSession.getAttribute("user") instanceof Practitioner) {
 			return "redirect:practitioner/index.html";
 		}
-		if (token == null || !token.isAuthenticated()) {
+		if (!authentication.isAuthenticated()) {
 			return "redirect:/sso/login";
 		}
 		return "unknown.html";
