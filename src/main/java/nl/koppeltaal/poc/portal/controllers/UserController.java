@@ -23,6 +23,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.RelatedPerson;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -52,7 +53,7 @@ public class UserController {
 
 	@RequestMapping(value = "current", method = RequestMethod.GET)
 	public UserDto getUser(Authentication authentication, HttpSession httpSession) {
-		OidcUser oidcUser = (OidcUser) authentication;
+		OAuth2AuthenticationToken oidcUser = (OAuth2AuthenticationToken) authentication;
 		UserDto rv = new UserDto();
 		String principalName = oidcUser.getName();
 		if (StringUtils.isNotBlank(principalName)) {
