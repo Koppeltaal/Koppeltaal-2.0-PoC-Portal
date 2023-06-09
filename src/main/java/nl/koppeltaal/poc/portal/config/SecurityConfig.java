@@ -1,5 +1,6 @@
 package nl.koppeltaal.poc.portal.config;
 
+import nl.koppeltaal.poc.portal.filter.AddFhirUserToSessionFilter;
 import nl.koppeltaal.poc.portal.handler.KeycloakLogoutHandler;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PatientFhirClientService;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.PractitionerFhirClientService;
@@ -9,9 +10,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -44,7 +47,9 @@ class SecurityConfig {
                 .antMatchers("/.well-known/*")
                     .permitAll()
                 .anyRequest()
-                    .hasAnyRole("USER", "PATIENT", "PRACTITIONER", "RELATEDPERSON");
+                    .hasAnyRole("USER", "PATIENT", "PRACTITIONER", "RELATEDPERSON")
+                .and()
+                    .addFilterAfter(addFhirUserToSessionFilter(), OAuth2AuthorizationCodeGrantFilter.class);
         http.oauth2Login()
                 .and()
                 .logout()
@@ -55,4 +60,8 @@ class SecurityConfig {
 
     }
 
+    @Bean
+    public AddFhirUserToSessionFilter addFhirUserToSessionFilter() {
+        return new AddFhirUserToSessionFilter(patientFhirClientService, practitionerFhirClientService, relatedPersonFhirClientService);
+    }
 }
