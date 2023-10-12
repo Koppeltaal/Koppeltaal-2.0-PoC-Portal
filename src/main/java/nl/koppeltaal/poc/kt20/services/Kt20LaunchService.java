@@ -6,6 +6,7 @@ import nl.koppeltaal.poc.kt20.KeyUtils;
 import nl.koppeltaal.poc.kt20.configuration.Kt20ClientConfiguration;
 import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
 import nl.koppeltaal.poc.kt20.valueobjects.Task;
+import nl.koppeltaal.spring.boot.starter.smartservice.configuration.SmartServiceConfiguration;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.*;
 import nl.koppeltaal.springbootstarterjwks.config.JwksConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +20,6 @@ import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -28,7 +28,10 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static nl.koppeltaal.spring.boot.starter.smartservice.constants.FhirConstant.KT2_EXTENSION__ENDPOINT;
 import static nl.koppeltaal.spring.boot.starter.smartservice.utils.ResourceUtils.getReference;
@@ -48,8 +51,8 @@ public class Kt20LaunchService {
 	@Autowired
 	JwksConfiguration jwksConfiguration;
 
-	@Value("${kt20.server.issuer:koppeltaal-2.0-poc-portal}")
-	String issuer;
+	@Autowired
+	SmartServiceConfiguration smartServiceConfiguration;
 
 	@Autowired
 	PatientFhirClientService patientFhirClientService;
@@ -205,7 +208,7 @@ public class Kt20LaunchService {
 			claims.setSubject(launchingUserReference);
 			claims.setIssuedAt(NumericDate.now());
 			claims.setAudience(getUrlForActivityDefinition(definition));
-			claims.setIssuer(issuer);
+			claims.setIssuer(smartServiceConfiguration.getClientId());
 			claims.setExpirationTime(NumericDate.fromMilliseconds(System.currentTimeMillis() + 15 * 60 * 1000));
 			claims.setJwtId(UUID.randomUUID().toString());
 
