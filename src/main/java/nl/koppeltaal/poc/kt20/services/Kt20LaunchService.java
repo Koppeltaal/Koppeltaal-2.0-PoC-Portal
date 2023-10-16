@@ -28,10 +28,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static nl.koppeltaal.spring.boot.starter.smartservice.constants.FhirConstant.KT2_EXTENSION__ENDPOINT;
 import static nl.koppeltaal.spring.boot.starter.smartservice.utils.ResourceUtils.getReference;
@@ -118,27 +115,31 @@ public class Kt20LaunchService {
 	}
 
 	public LaunchData launchTaskPatient(Patient patient, String taskId) throws IOException, JwkException, GeneralSecurityException {
-		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
-		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByUrl(fhirTask.getInstantiatesCanonical());
-		Task task = buildTask(fhirTask);
-		String launchToken = getLaunchToken(task, fhirDefinition, getReference(patient));
-		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
+		return getLaunchData(taskId, getReference(patient));
 	}
 
 	public LaunchData launchTaskPractitioner(Practitioner practitioner, String taskId) throws IOException, JwkException, GeneralSecurityException {
-		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
-		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByUrl(fhirTask.getInstantiatesCanonical());
-		Task task = buildTask(fhirTask);
-		String launchToken = getLaunchToken(task, fhirDefinition, getReference(practitioner));
-		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
+		return getLaunchData(taskId, getReference(practitioner));
 	}
 
 	public LaunchData launchTaskRelatedPerson(RelatedPerson relatedPerson, String taskId) throws IOException, JwkException, GeneralSecurityException {
+		return getLaunchData(taskId, getReference(relatedPerson));
+	}
+
+	private LaunchData getLaunchData(String taskId, String practitioner) throws GeneralSecurityException, IOException, JwkException {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
-		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByUrl(fhirTask.getInstantiatesCanonical());
+		if(fhirTask == null) {
+			throw new IllegalStateException("Cannot find Task");
+		}
+
+		ActivityDefinition activityDefinition = activityDefinitionFhirClientService.getResourceByUrl(fhirTask.getInstantiatesCanonical());
+		if(activityDefinition == null) {
+			throw new IllegalStateException("Cannot find ActivityDefinition");
+		}
+
 		Task task = buildTask(fhirTask);
-		String launchToken = getLaunchToken(task, fhirDefinition, getReference(relatedPerson));
-		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
+		String launchToken = getLaunchToken(task, activityDefinition, practitioner);
+		return new LaunchData(getUrlForActivityDefinition(activityDefinition), launchToken, isRedirect(activityDefinition));
 	}
 
 	private Task.Identifier buildIdentifier(String id) {
