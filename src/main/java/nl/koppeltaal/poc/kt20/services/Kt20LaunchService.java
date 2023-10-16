@@ -119,7 +119,7 @@ public class Kt20LaunchService {
 
 	public LaunchData launchTaskPatient(Patient patient, String taskId) throws IOException, JwkException, GeneralSecurityException {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
-		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(fhirTask.getInstantiatesCanonical());
+		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByUrl(fhirTask.getInstantiatesCanonical());
 		Task task = buildTask(fhirTask);
 		String launchToken = getLaunchToken(task, fhirDefinition, getReference(patient));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
@@ -127,7 +127,7 @@ public class Kt20LaunchService {
 
 	public LaunchData launchTaskPractitioner(Practitioner practitioner, String taskId) throws IOException, JwkException, GeneralSecurityException {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
-		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(fhirTask.getInstantiatesCanonical());
+		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByUrl(fhirTask.getInstantiatesCanonical());
 		Task task = buildTask(fhirTask);
 		String launchToken = getLaunchToken(task, fhirDefinition, getReference(practitioner));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
@@ -135,7 +135,7 @@ public class Kt20LaunchService {
 
 	public LaunchData launchTaskRelatedPerson(RelatedPerson relatedPerson, String taskId) throws IOException, JwkException, GeneralSecurityException {
 		org.hl7.fhir.r4.model.Task fhirTask = taskFhirClientService.getResourceByReference("Task/" + taskId);
-		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByReference(fhirTask.getInstantiatesCanonical());
+		ActivityDefinition fhirDefinition = activityDefinitionFhirClientService.getResourceByUrl(fhirTask.getInstantiatesCanonical());
 		Task task = buildTask(fhirTask);
 		String launchToken = getLaunchToken(task, fhirDefinition, getReference(relatedPerson));
 		return new LaunchData(getUrlForActivityDefinition(fhirDefinition), launchToken, isRedirect(fhirDefinition));
