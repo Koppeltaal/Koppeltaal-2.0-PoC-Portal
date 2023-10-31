@@ -104,33 +104,7 @@ public class TasksController extends BaseResourceController<TaskDto, Task> {
 		}
 
 		// Patient is requesting their own tasks
-		if(user instanceof Patient && StringUtils.equals(targetPatientReference, getReference((Patient) user))) {
-			return rv;
-		}
-
-		final Map<String, List<IQueryParameterType>> criteria = new HashMap<>();
-
-		final TokenParam participantParam = new TokenParam();
-		participantParam.setModifier(TokenParamModifier.IN);
-		participantParam.setValue(getReference(((DomainResource) user)));
-
-		final TokenParam subjectParam = new TokenParam();
-		subjectParam.setModifier(TokenParamModifier.TEXT);
-		subjectParam.setValue(targetPatientReference);
-
-		criteria.put("participant", Collections.singletonList(participantParam));
-		criteria.put("subject", Collections.singletonList(subjectParam));
-
-		//all careteams for the requested patient where the logged in user is a participant
-		TraceContext traceContext = new TraceContext();
-		final List<String> requestingUserCareTeams = careTeamService.getResources(criteria, traceContext).stream()
-				.map(this::getReference)
-				.collect(Collectors.toList());
-
-		//TODO: Embed the careteams into the search criteria instead of filtering in code
-		return rv.stream()
-				.filter(taskDto -> CollectionUtils.containsAny(taskDto.getObserverReferences(), requestingUserCareTeams))
-				.collect(Collectors.toList());
+		return rv;
 
 	}
 
