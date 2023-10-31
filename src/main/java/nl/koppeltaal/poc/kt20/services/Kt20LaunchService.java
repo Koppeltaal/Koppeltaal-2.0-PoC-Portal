@@ -208,7 +208,7 @@ public class Kt20LaunchService {
 
 			claims.setSubject(launchingUserReference);
 			claims.setIssuedAt(NumericDate.now());
-			claims.setAudience(getUrlForActivityDefinition(definition));
+			claims.setAudience(getDeviceForActivityDefinition(definition));
 			claims.setIssuer(smartServiceConfiguration.getClientId());
 			claims.setExpirationTime(NumericDate.fromMilliseconds(System.currentTimeMillis() + 15 * 60 * 1000));
 			claims.setJwtId(UUID.randomUUID().toString());
@@ -260,6 +260,17 @@ public class Kt20LaunchService {
 		}
 
 		return endpoint.getAddress();
+	}
+	private String getDeviceForActivityDefinition(ActivityDefinition fhirDefinition) throws IOException, JwkException {
+
+		final List<Extension> resourceOriginExtension = fhirDefinition.getExtensionsByUrl("http://koppeltaal.nl/fhir/StructureDefinition/resource-origin");
+
+		if (resourceOriginExtension.isEmpty()) {
+			throw new IllegalStateException("No resource-origin found");
+		}
+
+		Reference reference = (Reference) resourceOriginExtension.get(0).getValue();
+		return reference.getReference();
 	}
 
 	private boolean isRedirect(ActivityDefinition definition) {
