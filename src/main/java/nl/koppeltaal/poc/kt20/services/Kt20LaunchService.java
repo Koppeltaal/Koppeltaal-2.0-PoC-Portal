@@ -8,6 +8,7 @@ import nl.koppeltaal.poc.kt20.valueobjects.LaunchData;
 import nl.koppeltaal.poc.kt20.valueobjects.Task;
 import nl.koppeltaal.spring.boot.starter.smartservice.configuration.SmartServiceConfiguration;
 import nl.koppeltaal.spring.boot.starter.smartservice.service.fhir.*;
+import nl.koppeltaal.spring.boot.starter.smartservice.utils.ExtensionUtils;
 import nl.koppeltaal.springbootstarterjwks.config.JwksConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.*;
@@ -19,6 +20,8 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -31,6 +34,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 import static nl.koppeltaal.spring.boot.starter.smartservice.constants.FhirConstant.KT2_EXTENSION__ENDPOINT;
+import static nl.koppeltaal.spring.boot.starter.smartservice.constants.FhirConstant.KT2_EXTENSION__TASK__INSTANTIATES;
 import static nl.koppeltaal.spring.boot.starter.smartservice.utils.ResourceUtils.getReference;
 
 /**
@@ -38,6 +42,8 @@ import static nl.koppeltaal.spring.boot.starter.smartservice.utils.ResourceUtils
  */
 @Service
 public class Kt20LaunchService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(Kt20LaunchService.class);
 
 	@Autowired
 	ObjectMapper objectMapper;
@@ -132,8 +138,15 @@ public class Kt20LaunchService {
 			throw new IllegalStateException("Cannot find Task");
 		}
 
-		ActivityDefinition activityDefinition = activityDefinitionFhirClientService.getResourceByUrl(fhirTask.getInstantiatesCanonical());
+		Optional<String> instantiatesReferenceValue = ExtensionUtils.getReferenceValue(fhirTask, KT2_EXTENSION__TASK__INSTANTIATES);
+		if(instantiatesReferenceValue.isEmpty()) {
+			LOG.error("No instantiates extension found on [Task/{}], aborting launch", fhirTask.getId());
+			throw new IllegalStateException("No instantiates extension found on Task");
+		}
+
+		ActivityDefinition activityDefinition = activityDefinitionFhirClientService.getResourceByReference(instantiatesReferenceValue.get());
 		if(activityDefinition == null) {
+			LOG.error("No AD found for reference [{}], aborting launch", instantiatesReferenceValue.get());
 			throw new IllegalStateException("Cannot find ActivityDefinition");
 		}
 
@@ -173,9 +186,12 @@ public class Kt20LaunchService {
 		Task task = new Task();
 		task.setResourceType("Task");
 		task.setId(fhirTask.getIdElement().getIdPart());
-		final String instantiatesCanonical = fhirTask.getInstantiatesCanonical();
-		Assert.notNull(instantiatesCanonical, "Task.instantiatesCanonical is null");
-		task.setInstantiatesCanonical(instantiatesCanonical);
+		final Optional<String> instantiates = ExtensionUtils.getReferenceValue(fhirTask, KT2_EXTENSION__TASK__INSTANTIATES);
+		task.setInstantiates(
+				instantiates.orElseThrow(
+						() -> new IllegalArgumentException("Task.instantiates is null")
+				)
+		);
 		task.setOwner(buildUser(fhirTask.getOwner()));
 		task.setRequester(buildUser(fhirTask.getRequester()));
 		task.setIdentifier(buildIdentifier(fhirTask.getIdentifier()));
@@ -195,7 +211,7 @@ public class Kt20LaunchService {
 			JwtClaims claims = new JwtClaims();
 			if (kt20ClientConfiguration.isUseHti2()) {
 				claims.setClaim("resource", task.getResourceType() + "/" + task.getId());
-				claims.setClaim("definition", task.getInstantiatesCanonical());
+				claims.setClaim("definition", task.getInstantiates());
 				claims.setClaim("intent", task.getIntent());
 				Task.User owner = task.getOwner();
 				if (!StringUtils.equals(launchingUserReference, owner.getReference())) {

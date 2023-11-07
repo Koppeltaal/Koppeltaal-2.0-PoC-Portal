@@ -195,10 +195,9 @@
           tdata_active.innerHTML = '';
           tdata_finished.innerHTML = '';
           for (let task of Object.values(data)) {
-            const activityDefinitionReference = task.activityDefinition.replace(/.*(ActivityDefinition\/[0-9]+).*/, '$1');
             const tr = document.createElement('tr');
             tr.append(createTd(task.reference));
-              const activitydefinition = activitydefinitions[activityDefinitionReference];
+              const activitydefinition = activitydefinitions[task.activityDefinition];
               tr.append(createTd(
                   activitydefinition ? activitydefinition.title || activitydefinition.name : ''));
             tr.append(createTd(task.status));

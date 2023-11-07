@@ -16,7 +16,7 @@ public class Task {
 	String id;
 	Meta meta;
 	Text text;
-	String instantiatesCanonical;
+	String instantiates;
 	List<Identifier> identifier = new ArrayList<>();
 	String status = "requested";
 	String intent = "plan";
@@ -25,12 +25,12 @@ public class Task {
 	User requester;
 	User owner;
 
-	public String getInstantiatesCanonical() {
-		return instantiatesCanonical;
+	public String getInstantiates() {
+		return instantiates;
 	}
 
-	public void setInstantiatesCanonical(String instantiatesCanonical) {
-		this.instantiatesCanonical = instantiatesCanonical;
+	public void setInstantiates(String instantiates) {
+		this.instantiates = instantiates;
 	}
 
 	public User getForUser() {

@@ -238,8 +238,8 @@ function handleActivityDefinitionFetch(data) {
           tr.append(td);
           tdata.append(tr);
 
-          console.log(`Appending ${activitydefinitions[activitydefinition.url]} with val ${activitydefinition}`)
-          activitydefinitions[activitydefinition.url] = activitydefinition
+          console.log(`Appending ${activitydefinitions[activitydefinition.reference]} with val ${activitydefinition}`)
+          activitydefinitions[activitydefinition.reference] = activitydefinition
       }
 
       return activitydefinitions;
@@ -255,9 +255,8 @@ function handleTaskFetch(data, activitydefinitionMap) {
   for (let task of Object.values(data)) {
       const tr = document.createElement('tr');
 
-      const activityDefinitionReference = task.activityDefinition
       tr.append(createTd(task.reference));
-      const activitydefinition = activitydefinitionMap[activityDefinitionReference];
+      const activitydefinition = activitydefinitionMap[task.activityDefinition];
       tr.append(createTd(
           activitydefinition ? activitydefinition.title || activitydefinition.name : ''));
       tr.append(createTd(
